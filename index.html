@@ -5,23 +5,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Mind Ease Wellness Hub — Where Minds Connect and Grow</title>
-  <!-- Automatic Cache Invalidation & Legacy Service Worker Purge (Forces Normal Tabs to Update) -->
+  <!-- Automatic Mobile Disk Cache Bypass & Force Reload -->
   <script>
     (function() {
-      const CURRENT_VER = "mindease_v2026_07_28_v10";
-      if (localStorage.getItem("mindease_app_version") !== CURRENT_VER) {
-        localStorage.setItem("mindease_app_version", CURRENT_VER);
+      var MOBILE_VER = "mindease_v2026_07_28_v11_mobile";
+      if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
+        localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            for (let registration of registrations) { registration.unregister(); }
+          navigator.serviceWorker.getRegistrations().then(function(regs) {
+            for (let r of regs) r.unregister();
           });
         }
         if (window.caches) {
-          caches.keys().then(function(names) {
-            for (let name of names) caches.delete(name);
+          caches.keys().then(function(keys) {
+            for (let k of keys) caches.delete(k);
           });
         }
-        window.location.reload(true);
+        // Append unique timestamp query param to force mobile browser to bypass disk cache
+        var cleanUrl = window.location.href.split('?')[0].split('#')[0];
+        window.location.replace(cleanUrl + '?v=' + Date.now());
       }
     })();
   </script>
