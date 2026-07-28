@@ -8,7 +8,7 @@
   <!-- Automatic Mobile Normal Tab Cache Bypass & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_07_28_v15_silky_smooth_gpu";
+      var MOBILE_VER = "mindease_v2026_07_28_v16_restored_clean_scroll";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -448,85 +448,21 @@
       box-shadow: 0 4px 14px rgba(91, 138, 114, 0.35);
     }
 
-    /* --- ULTRA-SMOOTH GPU HARDWARE-ACCELERATED CONTAINER MORPH TRANSITION --- */
-    .page-morph-wrapper {
-      perspective: 1200px;
+    /* --- CLEAN, SILKY SMOOTH FADE-SLIDE PAGE TRANSITION --- */
+    .page-container {
       min-height: 85vh;
-      width: 100%;
-      overflow: hidden;
+      animation: smoothFadeSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      will-change: opacity, transform;
     }
 
-    .page-container-morph {
-      animation: pageSilkySmoothIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-      will-change: transform, opacity;
-      transform-style: preserve-3d;
-      backface-visibility: hidden;
-    }
-
-    @keyframes pageSilkySmoothIn {
+    @keyframes smoothFadeSlideIn {
       0% {
         opacity: 0;
-        transform: translate3d(0, 16px, -30px) scale(0.96);
+        transform: translateY(10px);
       }
       100% {
         opacity: 1;
-        transform: translate3d(0, 0px, 0px) scale(1);
-      }
-    }
-
-    /* --- GPU ACCELERATED RIPPLE WAVE OVERLAY --- */
-    .ripple-wave-overlay {
-      position: fixed;
-      pointer-events: none;
-      z-index: 99999;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(91, 138, 114, 0.25) 0%, rgba(142, 125, 190, 0.15) 50%, transparent 80%);
-      transform: translate3d(-50%, -50%, 0) scale(0);
-      animation: expandSilkyRipple 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-      will-change: transform, opacity;
-    }
-
-    @keyframes expandSilkyRipple {
-      0% {
-        width: 20px;
-        height: 20px;
-        opacity: 0.7;
-        transform: translate3d(-50%, -50%, 0) scale(0.2);
-      }
-      100% {
-        width: 220vmax;
-        height: 220vmax;
-        opacity: 0;
-        transform: translate3d(-50%, -50%, 0) scale(1);
-      }
-    }
-
-    /* --- LIGHTWEIGHT CALM BREATHE IN/OUT PULSE RING OVERLAY --- */
-    .breathe-pulse-overlay {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      width: 160px;
-      height: 160px;
-      margin-top: -80px;
-      margin-left: -80px;
-      border-radius: 50%;
-      border: 2px solid rgba(91, 138, 114, 0.5);
-      box-shadow: 0 0 35px rgba(142, 125, 190, 0.3);
-      pointer-events: none;
-      z-index: 99998;
-      animation: calmBreathePulse 0.32s ease-out forwards;
-      will-change: transform, opacity;
-    }
-
-    @keyframes calmBreathePulse {
-      0% {
-        opacity: 0.8;
-        transform: translate3d(0, 0, 0) scale(0.7);
-      }
-      100% {
-        opacity: 0;
-        transform: translate3d(0, 0, 0) scale(1.6);
+        transform: translateY(0);
       }
     }
 
@@ -2044,27 +1980,8 @@
       const prevPage = pageOrder[(currentIdx - 1 + pageOrder.length) % pageOrder.length];
       const nextPage = pageOrder[(currentIdx + 1) % pageOrder.length];
 
-      const [ripple, setRipple] = useState(null);
-      const [isBreathing, setIsBreathing] = useState(false);
-
-      const handleNavigatePage = (targetPageId, e) => {
+      const handleNavigatePage = (targetPageId) => {
         if (targetPageId === currentPage) return;
-
-        // Extract click coordinates for expanding pastel ripple wave (or default to screen center)
-        let clickX = window.innerWidth / 2;
-        let clickY = window.innerHeight / 2;
-        if (e && e.clientX && e.clientY) {
-          clickX = e.clientX;
-          clickY = e.clientY;
-        } else if (e && e.target && e.target.getBoundingClientRect) {
-          const rect = e.target.getBoundingClientRect();
-          clickX = rect.left + rect.width / 2;
-          clickY = rect.top + rect.height / 2;
-        }
-        setRipple({ x: clickX, y: clickY, id: Date.now() });
-        setIsBreathing(true);
-        setTimeout(() => setIsBreathing(false), 350);
-
         setCurrentPage(targetPageId);
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
         document.body.scrollTop = 0;
@@ -2367,35 +2284,21 @@
             onToggleMusic={handleToggleMusic}
           />
 
-          {/* EXPANDING PASTEL RIPPLE WAVE & LIGHT BLOOM OVERLAY */}
-          {ripple && (
-            <div
-              key={ripple.id}
-              className="ripple-wave-overlay"
-              style={{ left: `${ripple.x}px`, top: `${ripple.y}px` }}
-            />
-          )}
-
-          {/* ULTRA-FAST CALM BREATHE IN/OUT PULSE RING OVERLAY */}
-          {isBreathing && <div className="breathe-pulse-overlay" />}
-
-          {/* PAGE ROUTER VIEWS WITH 3D DEPTH MORPH TRANSITION */}
-          <div className="page-morph-wrapper">
-            <div key={currentPage} className="page-container-morph">
-              {currentPage === 'home' && <HomePage onNavigatePage={handleNavigatePage} onOpenBooking={(name) => openBooking(name)} />}
-              {currentPage === 'offerings' && <OfferingsPage onBookSession={(name) => openBooking(name)} />}
-              {currentPage === 'activities' && <ActivitiesPage onBookSession={(name) => openBooking(name)} />}
-              {currentPage === 'experience' && <ExperiencePage onBookSession={(name) => openBooking(name)} />}
-              {currentPage === 'whoFor' && <WhoForPage onBookSession={(name) => openBooking(name)} />}
-              {currentPage === 'collaborate' && <CollaboratePage />}
-              {currentPage === 'events' && (
-                <EventsPage
-                  isModalOpen={modal}
-                  onCloseModal={(name) => { if (name) setSessionName(name); else setModal(false); }}
-                  selectedSessionName={sessionName}
-                />
-              )}
-            </div>
+          {/* PAGE ROUTER VIEWS WITH SILKY SMOOTH TRANSITION */}
+          <div key={currentPage} className="page-container">
+            {currentPage === 'home' && <HomePage onNavigatePage={handleNavigatePage} onOpenBooking={(name) => openBooking(name)} />}
+            {currentPage === 'offerings' && <OfferingsPage onBookSession={(name) => openBooking(name)} />}
+            {currentPage === 'activities' && <ActivitiesPage onBookSession={(name) => openBooking(name)} />}
+            {currentPage === 'experience' && <ExperiencePage onBookSession={(name) => openBooking(name)} />}
+            {currentPage === 'whoFor' && <WhoForPage onBookSession={(name) => openBooking(name)} />}
+            {currentPage === 'collaborate' && <CollaboratePage />}
+            {currentPage === 'events' && (
+              <EventsPage
+                isModalOpen={modal}
+                onCloseModal={(name) => { if (name) setSessionName(name); else setModal(false); }}
+                selectedSessionName={sessionName}
+              />
+            )}
           </div>
 
           {/* GLOBAL BOOKING MODAL */}
