@@ -1908,8 +1908,23 @@
       const handleNavigatePage = (targetPageId) => {
         if (targetPageId === currentPage) return;
         setCurrentPage(targetPageId);
-        window.scrollTo(0, 0);
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
       };
+
+      // ROBUST SCROLL TO TOP ON PAGE SWITCH (WORKS ON ALL MOBILE & DESKTOP BROWSERS)
+      useEffect(() => {
+        const scrollToTop = () => {
+          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+          document.body.scrollTop = 0;
+          document.documentElement.scrollTop = 0;
+        };
+        scrollToTop();
+        const timer1 = setTimeout(scrollToTop, 20);
+        const timer2 = setTimeout(scrollToTop, 100);
+        return () => { clearTimeout(timer1); clearTimeout(timer2); };
+      }, [currentPage]);
 
       // CALM GUITAR MUSIC MUTE / UNMUTE TOGGLE WITH INFINITE LOOP RESTART
       const handleToggleMusic = () => {
