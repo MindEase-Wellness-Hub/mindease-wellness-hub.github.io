@@ -806,15 +806,30 @@
               ))}
             </div>
 
-            {/* RIGHT SIDE ACTION BUTTONS WITH CLEAN SINGLE MUTE/UNMUTE BUTTON */}
+            {/* RIGHT SIDE ACTION BUTTONS WITH ENHANCED BAMBOO FLUTE AUDIO TOGGLE */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <button
                 onClick={onToggleMusic}
                 className={`music-toggle-btn ${isMusicPlaying ? 'playing' : ''}`}
-                title={isMusicPlaying ? "Mute Relaxing Music" : "Play Relaxing Music"}
+                title={isMusicPlaying ? "Pause Bamboo Flute Ambient Music" : "Play Bamboo Flute Ambient Music"}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 16px',
+                  borderRadius: '50px',
+                  fontWeight: 700,
+                  fontSize: '0.82rem',
+                  border: isMusicPlaying ? '1.5px solid #5B8A72' : '1.5px solid rgba(142, 125, 190, 0.4)',
+                  backgroundColor: isMusicPlaying ? '#5B8A72' : 'rgba(255, 255, 255, 0.9)',
+                  color: isMusicPlaying ? 'white' : '#274C38',
+                  cursor: 'pointer',
+                  boxShadow: isMusicPlaying ? '0 4px 14px rgba(91, 138, 114, 0.4)' : '0 2px 8px rgba(0, 0, 0, 0.05)',
+                  transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                }}
               >
-                <span>{isMusicPlaying ? "🔊" : "🔇"}</span>
-                <span>{isMusicPlaying ? "Calm Music Playing" : "Play Music"}</span>
+                <span>{isMusicPlaying ? "🎵" : "⏸️"}</span>
+                <span>{isMusicPlaying ? "Calm Music Playing" : "Play Calm Music"}</span>
               </button>
 
               <MagneticButton onClick={() => onOpenBooking('General Wellness Session')} className="btn-primary" style={{ padding: '8px 20px', fontSize: '0.85rem' }}>
@@ -975,12 +990,26 @@
         }
       }
 
-      // Vertical displacements for exploded view
+      // 3D Parallax Explosion Displacements (Vertical + Horizontal + 3D Tilt)
       const translateYs = [
-        -110 * explodeFactor,
-        -35 * explodeFactor,
-        40 * explodeFactor,
-        115 * explodeFactor
+        -130 * explodeFactor,
+        -40 * explodeFactor,
+        45 * explodeFactor,
+        135 * explodeFactor
+      ];
+
+      const translateXs = [
+        -18 * explodeFactor,
+        15 * explodeFactor,
+        -15 * explodeFactor,
+        18 * explodeFactor
+      ];
+
+      const rotateXs = [
+        5 * explodeFactor,
+        2.5 * explodeFactor,
+        -2.5 * explodeFactor,
+        -5 * explodeFactor
       ];
 
       return (
@@ -996,12 +1025,12 @@
             <p style={{ color: '#5A6E63', maxWidth: '680px', margin: '0 auto 16px', fontSize: '0.98rem' }}>
               {isMobile
                 ? "Click or tap any layer to inspect its core mental health foundation!"
-                : "Scroll down to see the stack smoothly explode into depth view with dynamic benefit callouts, then re-assemble before moving forward!"}
+                : "Scroll down to experience 3D assembly & disassembly with spring callout benefits!"}
             </p>
 
             {!isMobile && (
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(91,138,114,0.1)', padding: '6px 16px', borderRadius: '50px', border: '1px solid rgba(91,138,114,0.3)', color: '#274C38', fontSize: '0.85rem', fontWeight: 700 }}>
-                <span>📜 Scroll Progress: Math.round({scrollProgress * 100})%</span>
+                <span>📜 Scroll Assembly Progress: {Math.round(scrollProgress * 100)}%</span>
                 <div style={{ width: '80px', height: '6px', backgroundColor: 'rgba(91,138,114,0.2)', borderRadius: '10px', overflow: 'hidden' }}>
                   <div style={{ width: `${scrollProgress * 100}%`, height: '100%', backgroundColor: '#5B8A72', transition: 'width 0.1s linear' }}></div>
                 </div>
@@ -1009,13 +1038,14 @@
             )}
           </div>
 
-          {/* SCROLL-PINNED EXPLODING CONTAINER */}
+          {/* SCROLL-PINNED 3D EXPLODING CONTAINER */}
           <div
             ref={containerRef}
             style={{
-              position: isMobile ? 'relative' : 'relative',
-              height: isMobile ? 'auto' : '220vh',
-              marginBottom: '40px'
+              position: 'relative',
+              height: isMobile ? 'auto' : '230vh',
+              marginBottom: '40px',
+              perspective: '1200px'
             }}
           >
             <div style={{
@@ -1023,7 +1053,8 @@
               top: isMobile ? '0' : '90px',
               maxWidth: '920px',
               margin: '0 auto',
-              padding: '20px 16px'
+              padding: '20px 16px',
+              transformStyle: 'preserve-3d'
             }}>
               <div style={{
                 position: 'relative',
@@ -1034,8 +1065,10 @@
                 {pillars.map((pillar, idx) => {
                   const isActive = activeLayer === idx;
                   const currentTY = isMobile ? 0 : translateYs[idx];
-                  const calloutOpacity = isMobile ? 1 : Math.min(1, explodeFactor * 1.5);
-                  const calloutTranslateX = isMobile ? 0 : (1 - explodeFactor) * 40;
+                  const currentTX = isMobile ? 0 : translateXs[idx];
+                  const currentRX = isMobile ? 0 : rotateXs[idx];
+                  const calloutOpacity = isMobile ? 1 : Math.min(1, explodeFactor * 1.6);
+                  const calloutTranslateX = isMobile ? 0 : (1 - explodeFactor) * 50;
 
                   return (
                     <div
@@ -1049,29 +1082,29 @@
                         borderRadius: isMobile ? '20px' : '24px',
                         padding: isMobile ? '20px 22px' : '24px 28px',
                         cursor: 'pointer',
-                        boxShadow: isActive || explodeFactor > 0.3 ? '0 18px 45px rgba(0,0,0,0.22)' : '0 8px 24px rgba(0,0,0,0.1)',
+                        boxShadow: isActive || explodeFactor > 0.3 ? '0 22px 50px rgba(0,0,0,0.25)' : '0 8px 24px rgba(0,0,0,0.1)',
                         marginTop: !isMobile && idx > 0 ? '-32px' : '0px',
                         zIndex: isActive ? 30 : pillars.length - idx,
-                        transform: `translateY(${currentTY}px) ${isActive ? 'scale(1.02)' : 'scale(1)'}`,
+                        transform: `translateY(${currentTY}px) translateX(${currentTX}px) rotateX(${currentRX}deg) ${isActive ? 'scale(1.03)' : 'scale(1)'}`,
                         transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease',
-                        border: '2px solid rgba(255,255,255,0.35)',
+                        border: '2px solid rgba(255,255,255,0.38)',
                         willChange: 'transform'
                       }}
                     >
-                      {/* DESKTOP DYNAMIC CALLOUT LINES & LABEL TAGS (EXPAND OUTWARD ON SCROLL) */}
-                      {!isMobile && explodeFactor > 0.1 && (
+                      {/* DESKTOP DYNAMIC CALLOUT LINES & LABEL TAGS (SPRING OUTWARD ON SCROLL) */}
+                      {!isMobile && explodeFactor > 0.08 && (
                         <>
                           {/* LEFT CALLOUT */}
                           <div style={{
                             position: 'absolute',
-                            left: '-190px',
+                            left: '-205px',
                             top: '50%',
                             transform: `translateY(-50%) translateX(${-calloutTranslateX}px)`,
                             opacity: calloutOpacity,
                             display: 'flex',
                             alignItems: 'center',
                             gap: '8px',
-                            transition: 'all 0.3s ease',
+                            transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                             pointerEvents: 'none'
                           }}>
                             <div style={{
@@ -1081,29 +1114,29 @@
                               borderRadius: '20px',
                               fontWeight: 800,
                               fontSize: '0.78rem',
-                              boxShadow: '0 6px 18px rgba(0,0,0,0.15)',
-                              border: `2px solid ${pillar.accentColor}`,
+                              boxShadow: '0 6px 20px rgba(0,0,0,0.18)',
+                              border: `2.5px solid ${pillar.accentColor}`,
                               whiteSpace: 'nowrap'
                             }}>
                               {pillar.leftCallout}
                             </div>
-                            <div style={{ width: '35px', height: '2px', backgroundColor: pillar.accentColor }}></div>
+                            <div style={{ width: '45px', height: '2.5px', backgroundColor: pillar.accentColor, borderRadius: '2px' }}></div>
                           </div>
 
                           {/* RIGHT CALLOUT */}
                           <div style={{
                             position: 'absolute',
-                            right: '-190px',
+                            right: '-205px',
                             top: '50%',
                             transform: `translateY(-50%) translateX(${calloutTranslateX}px)`,
                             opacity: calloutOpacity,
                             display: 'flex',
                             alignItems: 'center',
                             gap: '8px',
-                            transition: 'all 0.3s ease',
+                            transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                             pointerEvents: 'none'
                           }}>
-                            <div style={{ width: '35px', height: '2px', backgroundColor: pillar.accentColor }}></div>
+                            <div style={{ width: '45px', height: '2.5px', backgroundColor: pillar.accentColor, borderRadius: '2px' }}></div>
                             <div style={{
                               backgroundColor: 'white',
                               color: '#274C38',
@@ -1111,8 +1144,8 @@
                               borderRadius: '20px',
                               fontWeight: 800,
                               fontSize: '0.78rem',
-                              boxShadow: '0 6px 18px rgba(0,0,0,0.15)',
-                              border: `2px solid ${pillar.accentColor}`,
+                              boxShadow: '0 6px 20px rgba(0,0,0,0.18)',
+                              border: `2.5px solid ${pillar.accentColor}`,
                               whiteSpace: 'nowrap'
                             }}>
                               {pillar.rightCallout}
