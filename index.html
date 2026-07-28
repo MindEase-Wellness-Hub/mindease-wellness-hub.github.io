@@ -1933,6 +1933,39 @@
         return () => window.removeEventListener('keydown', handleKeyDown);
       }, [currentPage, showWelcome, modal, nextPage.id, prevPage.id]);
 
+      // SCROLL-DRIVEN PAGE SWITCHING LOGIC (SCROLL DOWN -> NEXT PAGE, SCROLL UP -> PREVIOUS PAGE)
+      const lastPageSwitchTimeRef = useRef(0);
+      useEffect(() => {
+        const handleWheel = (e) => {
+          if (showWelcome || modal) return;
+          const targetTag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
+          if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTag)) return;
+
+          const now = Date.now();
+          if (now - lastPageSwitchTimeRef.current < 850) return;
+
+          const scrollY = window.scrollY;
+          const windowHeight = window.innerHeight;
+          const fullHeight = document.documentElement.scrollHeight;
+          const isAtBottom = scrollY + windowHeight >= fullHeight - 60;
+          const isAtTop = scrollY <= 15;
+
+          // Scroll Down -> Switch to Next Page when reaching bottom or on single screen
+          if (e.deltaY > 40 && isAtBottom) {
+            lastPageSwitchTimeRef.current = now;
+            handleNavigatePage(nextPage.id);
+          }
+          // Scroll Up -> Switch to Prev Page when reaching top
+          else if (e.deltaY < -40 && isAtTop) {
+            lastPageSwitchTimeRef.current = now;
+            handleNavigatePage(prevPage.id);
+          }
+        };
+
+        window.addEventListener('wheel', handleWheel, { passive: true });
+        return () => window.removeEventListener('wheel', handleWheel);
+      }, [currentPage, showWelcome, modal, nextPage.id, prevPage.id]);
+
       const openBooking = (name) => {
         setSessionName(name || 'Mindfulness & Stress Management');
         setModal(true);
