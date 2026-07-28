@@ -842,6 +842,188 @@
                 </div>
               </TiltCard>
             </div>
+
+            {/* DECONSTRUCTED WELLNESS STACK SECTION */}
+            <DeconstructedWellnessStack onNavigatePage={onNavigatePage} onOpenBooking={onOpenBooking} />
+          </div>
+        </div>
+      );
+    }
+
+    // --- DECONSTRUCTED WELLNESS STACK COMPONENT ---
+    function DeconstructedWellnessStack({ onNavigatePage, onOpenBooking }) {
+      const [activeLayer, setActiveLayer] = useState(0);
+      const [isDeconstructed, setIsDeconstructed] = useState(false);
+
+      const pillars = [
+        {
+          id: 'mindfulness',
+          icon: '🧘',
+          title: 'Mindfulness & Inner Care',
+          subtitle: 'Daily Emotional Balance & Stress Regulation',
+          bg: 'linear-gradient(135deg, #5B8A72 0%, #385E4C 100%)',
+          accentColor: '#5B8A72',
+          badge: 'PILLAR 01',
+          features: ['5-Minute Mindful Breathing', 'Guided Sleep & Calm Audio', 'Body Scan & Muscle Relaxation'],
+          desc: 'Build emotional resilience through daily grounding exercises and calm practices designed to reduce anxiety and quiet an overactive mind.'
+        },
+        {
+          id: 'peerSupport',
+          icon: '🫂',
+          title: 'Peer Support Circles',
+          subtitle: 'Empathetic Student Network & Safe Listening',
+          bg: 'linear-gradient(135deg, #8E7DBE 0%, #554473 100%)',
+          accentColor: '#8E7DBE',
+          badge: 'PILLAR 02',
+          features: ['Judgment-Free Listening', 'Student Support Groups', 'Shared Experience Exchanges'],
+          desc: 'Connect with fellow peers who truly understand your journey. Share your thoughts in a 100% confidential and warm community.'
+        },
+        {
+          id: 'expertGuidance',
+          icon: '🎓',
+          title: 'Expert Guidance & Therapy',
+          subtitle: 'Licensed Professional Consultations & Skill Workshops',
+          bg: 'linear-gradient(135deg, #E88E7D 0%, #C46252 100%)',
+          accentColor: '#E88E7D',
+          badge: 'PILLAR 03',
+          features: ['One-on-One Counseling', 'Burnout Prevention Webinars', 'Personal Growth Roadmaps'],
+          desc: 'Access licensed psychologists and wellness coaches for professional advice, structured therapy sessions, and personal development tools.'
+        },
+        {
+          id: 'communityFun',
+          icon: '🎈',
+          title: 'Community & Fun Activities',
+          subtitle: 'De-Stress Carnivals, Art Therapy & Social Cafés',
+          bg: 'linear-gradient(135deg, #385E4C 0%, #274C38 100%)',
+          accentColor: '#274C38',
+          badge: 'PILLAR 04',
+          features: ['Art Without Rules Therapy', 'Cozy Tea & Talk Lounges', 'Board Game & Micro-App Booths'],
+          desc: 'Engage in relaxing offline events, creative crafts, and social gaming sessions that make mental wellness fun, interactive, and uplifting.'
+        }
+      ];
+
+      return (
+        <div style={{ marginTop: '70px', paddingTop: '40px', borderTop: '2px dashed rgba(91, 138, 114, 0.25)' }}>
+          <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+            <div className="brush-banner-purple" style={{ fontSize: '0.8rem', marginBottom: '12px' }}>
+              📚 THE WELLNESS FOUNDATION
+            </div>
+            <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 800, color: '#274C38', marginBottom: '10px' }}>
+              Deconstructed Mind Ease Wellness Stack
+            </h2>
+            <p style={{ color: '#5A6E63', maxWidth: '640px', margin: '0 auto 20px', fontSize: '0.98rem' }}>
+              Our holistic mental health architecture built layer-by-layer. Click or hover any pillar to deconstruct and inspect its core benefits!
+            </p>
+
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', backgroundColor: 'rgba(255,255,255,0.9)', padding: '6px 16px', borderRadius: '50px', boxShadow: '0 4px 14px rgba(0,0,0,0.06)', border: '1px solid rgba(91,138,114,0.3)' }}>
+              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#274C38' }}>Stack Layout:</span>
+              <button
+                onClick={() => setIsDeconstructed(false)}
+                style={{
+                  padding: '6px 14px', borderRadius: '20px', border: 'none', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer',
+                  backgroundColor: !isDeconstructed ? '#5B8A72' : 'transparent', color: !isDeconstructed ? 'white' : '#5A6E63', transition: 'all 0.25s ease'
+                }}
+              >
+                🥞 3D Layered Deck
+              </button>
+              <button
+                onClick={() => setIsDeconstructed(true)}
+                style={{
+                  padding: '6px 14px', borderRadius: '20px', border: 'none', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer',
+                  backgroundColor: isDeconstructed ? '#5B8A72' : 'transparent', color: isDeconstructed ? 'white' : '#5A6E63', transition: 'all 0.25s ease'
+                }}
+              >
+                ✨ Deconstructed View
+              </button>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: isDeconstructed ? 'repeat(auto-fit, minmax(260px, 1fr))' : '1fr', gap: isDeconstructed ? '20px' : '0px', maxWidth: isDeconstructed ? '1200px' : '780px', margin: '0 auto' }}>
+            {pillars.map((pillar, idx) => {
+              const isActive = activeLayer === idx;
+              return (
+                <div
+                  key={pillar.id}
+                  onClick={() => setActiveLayer(idx)}
+                  onMouseEnter={() => setActiveLayer(idx)}
+                  style={{
+                    position: 'relative',
+                    background: pillar.bg,
+                    color: 'white',
+                    borderRadius: '24px',
+                    padding: '26px 30px',
+                    cursor: 'pointer',
+                    boxShadow: isActive ? '0 20px 40px rgba(0,0,0,0.22)' : '0 8px 24px rgba(0,0,0,0.1)',
+                    marginTop: !isDeconstructed && idx > 0 ? '-30px' : '0px',
+                    zIndex: isActive ? 20 : pillars.length - idx,
+                    transform: isDeconstructed 
+                      ? (isActive ? 'translateY(-6px) scale(1.02)' : 'translateY(0) scale(1)')
+                      : (isActive ? 'translateY(-14px) scale(1.02)' : `translateY(${idx * 4}px)`),
+                    transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                    border: '2px solid rgba(255,255,255,0.3)'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span style={{ fontSize: '2.2rem', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))' }}>{pillar.icon}</span>
+                      <div>
+                        <span style={{ fontSize: '0.68rem', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase', backgroundColor: 'rgba(255,255,255,0.25)', padding: '3px 10px', borderRadius: '20px' }}>
+                          {pillar.badge}
+                        </span>
+                        <h3 style={{ fontSize: '1.25rem', color: 'white', fontWeight: 800, marginTop: '4px', fontFamily: 'var(--font-heading)' }}>
+                          {pillar.title}
+                        </h3>
+                      </div>
+                    </div>
+                    <span style={{ fontSize: '1.2rem', transform: isActive ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}>
+                      ▼
+                    </span>
+                  </div>
+
+                  <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.9)', marginBottom: isActive ? '16px' : '0px', lineHeight: 1.4 }}>
+                    {pillar.subtitle}
+                  </p>
+
+                  {/* EXPANDED DETAILS WHEN ACTIVE OR DECONSTRUCTED */}
+                  {(isActive || isDeconstructed) && (
+                    <div style={{ animation: 'welcomePop 0.3s ease-out', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.25)', marginTop: '12px' }}>
+                      <p style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.95)', marginBottom: '14px', lineHeight: 1.5 }}>
+                        {pillar.desc}
+                      </p>
+
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '18px' }}>
+                        {pillar.features.map((feat, fIdx) => (
+                          <span key={fIdx} style={{ fontSize: '0.78rem', fontWeight: 700, backgroundColor: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '14px' }}>
+                            ✓ {feat}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onOpenBooking(pillar.title); }}
+                          style={{
+                            backgroundColor: 'white', color: pillar.accentColor, border: 'none', padding: '8px 18px',
+                            borderRadius: '50px', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                          }}
+                        >
+                          📅 Book {pillar.title.split(' ')[0]} Session →
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onNavigatePage('offerings'); }}
+                          style={{
+                            backgroundColor: 'transparent', color: 'white', border: '1.5px solid white', padding: '8px 16px',
+                            borderRadius: '50px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer'
+                          }}
+                        >
+                          Explore Offerings
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       );
