@@ -2023,7 +2023,7 @@
         };
       }
 
-      // UNLOCK BROWSER AUTOPLAY POLICY & START AMBIENT FLUTE MUSIC ON FIRST INTERACTION
+      // UNLOCK BROWSER AUTOPLAY POLICY ONCE ON FIRST USER INTERACTION (ONE-TIME ONLY)
       useEffect(() => {
         const unlockAudio = () => {
           const audioEl = document.getElementById('bg-calm-audio');
@@ -2033,17 +2033,19 @@
             audioEl.play().then(() => {
               setIsMusicPlaying(true);
             }).catch(() => {
-              fluteSynthRef.current.start();
+              if (fluteSynthRef.current) fluteSynthRef.current.start();
               setIsMusicPlaying(true);
             });
           } else {
-            fluteSynthRef.current.start();
+            if (fluteSynthRef.current) fluteSynthRef.current.start();
             setIsMusicPlaying(true);
           }
+          window.removeEventListener('click', unlockAudio);
+          window.removeEventListener('touchstart', unlockAudio);
         };
 
-        window.addEventListener('click', unlockAudio);
-        window.addEventListener('touchstart', unlockAudio);
+        window.addEventListener('click', unlockAudio, { once: true });
+        window.addEventListener('touchstart', unlockAudio, { once: true });
 
         return () => {
           window.removeEventListener('click', unlockAudio);
@@ -2053,18 +2055,27 @@
 
       // CALM MUSIC MUTE / UNMUTE TOGGLE WITH INSTANT STATE FLIP & DUAL SYNTH/MP3 AUDIO
       const handleToggleMusic = (e) => {
-        if (e && e.preventDefault) e.preventDefault();
+        if (e) {
+          try { e.preventDefault(); e.stopPropagation(); } catch (err) {}
+        }
         const audioEl = document.getElementById('bg-calm-audio');
 
         if (isMusicPlaying) {
           setIsMusicPlaying(false);
           if (audioEl) {
-            try { audioEl.pause(); } catch (err) {}
+            try {
+              audioEl.pause();
+              audioEl.currentTime = 0;
+            } catch (err) {}
           }
-          if (fluteSynthRef.current) fluteSynthRef.current.stop();
+          if (fluteSynthRef.current) {
+            fluteSynthRef.current.stop();
+          }
         } else {
           setIsMusicPlaying(true);
-          if (fluteSynthRef.current) fluteSynthRef.current.start();
+          if (fluteSynthRef.current) {
+            fluteSynthRef.current.start();
+          }
           if (audioEl) {
             audioEl.volume = 0.35;
             audioEl.loop = true;
