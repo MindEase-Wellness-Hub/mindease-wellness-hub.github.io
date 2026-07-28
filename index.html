@@ -2001,90 +2001,18 @@
         return () => { clearTimeout(timer1); clearTimeout(timer2); };
       }, [currentPage]);
 
-      // GUARANTEED MOBILE PHONE SOOTHING PIANO & ACOUSTIC AMBIENT SYNTHESIZER
-      const fluteSynthRef = useRef(null);
-      if (!fluteSynthRef.current) {
-        fluteSynthRef.current = {
-          audioCtx: null,
-          intervalId: null,
-          isPlaying: false,
-          getAudioCtx: function() {
-            if (!this.audioCtx || this.audioCtx.state === 'closed') {
-              const AudioCtx = window.AudioContext || window.webkitAudioContext;
-              if (AudioCtx) this.audioCtx = new AudioCtx();
-            }
-            if (this.audioCtx && this.audioCtx.state === 'suspended') {
-              this.audioCtx.resume().catch(() => {});
-            }
-            return this.audioCtx;
-          },
-          start: function() {
-            if (this.isPlaying) return;
-            try {
-              const ctx = this.getAudioCtx();
-              if (!ctx) return;
-              this.isPlaying = true;
-              if (this.intervalId) clearInterval(this.intervalId);
-
-              // Soothing Acoustic Guitar & Piano ambient chord notes (C4, E4, G4, A4, B4, D5)
-              const notes = [261.63, 329.63, 392.00, 440.00, 493.88, 587.33];
-              const playNote = () => {
-                if (!this.isPlaying) return;
-                try {
-                  const currentCtx = this.getAudioCtx();
-                  if (!currentCtx) return;
-
-                  const osc = currentCtx.createOscillator();
-                  const gain = currentCtx.createGain();
-                  const filter = currentCtx.createBiquadFilter();
-                  const freq = notes[Math.floor(Math.random() * notes.length)];
-
-                  // Soft triangle wave for gentle acoustic piano/guitar tone
-                  osc.type = 'triangle';
-                  osc.frequency.setValueAtTime(freq, currentCtx.currentTime);
-                  
-                  filter.type = 'lowpass';
-                  filter.frequency.setValueAtTime(800, currentCtx.currentTime);
-
-                  gain.gain.setValueAtTime(0, currentCtx.currentTime);
-                  gain.gain.linearRampToValueAtTime(0.12, currentCtx.currentTime + 0.6);
-                  gain.gain.linearRampToValueAtTime(0, currentCtx.currentTime + 3.8);
-
-                  osc.connect(filter);
-                  filter.connect(gain);
-                  gain.connect(currentCtx.destination);
-                  osc.start(currentCtx.currentTime);
-                  osc.stop(currentCtx.currentTime + 3.9);
-                } catch (err) {}
-              };
-
-              playNote();
-              this.intervalId = setInterval(playNote, 2500);
-            } catch (e) {}
-          },
-          stop: function() {
-            this.isPlaying = false;
-            if (this.intervalId) clearInterval(this.intervalId);
-            if (this.audioCtx) {
-              try { this.audioCtx.close(); } catch (e) {}
-              this.audioCtx = null;
-            }
-          }
-        };
-      }
-
-      // UNIVERSAL BROWSER & MOBILE DEVICE AUDIO UNLOCK LISTENER (ONE-TIME ONLY)
+      // UNIVERSAL BROWSER & MOBILE DEVICE AUDIO UNLOCK LISTENER (PURE ULTRA-SMOOTH STUDIO MEDITATION AUDIO)
       useEffect(() => {
         const unlockAudio = () => {
-          setIsMusicPlaying(true);
-          if (fluteSynthRef.current) {
-            fluteSynthRef.current.start();
-          }
           const audioEl = document.getElementById('bg-calm-audio');
           if (audioEl) {
             audioEl.volume = 0.35;
             audioEl.loop = true;
-            audioEl.play().catch(() => {});
+            audioEl.play().then(() => {
+              setIsMusicPlaying(true);
+            }).catch((err) => {
+              console.error("Audio playback error:", err);
+            });
           }
         };
 
@@ -2114,14 +2042,8 @@
               console.error("Audio playback error:", err);
             }
           }
-          if (fluteSynthRef.current) {
-            fluteSynthRef.current.stop();
-          }
         } else {
           setIsMusicPlaying(true);
-          if (fluteSynthRef.current) {
-            fluteSynthRef.current.start();
-          }
           if (audioEl) {
             audioEl.volume = 0.35;
             audioEl.loop = true;
