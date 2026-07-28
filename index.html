@@ -2045,29 +2045,23 @@
         };
       }, []);
 
-      // CALM MUSIC MUTE / UNMUTE TOGGLE WITH DUAL FALLBACK
+      // CALM MUSIC MUTE / UNMUTE TOGGLE WITH INSTANT STATE FLIP & FAIL-PROOF AUDIO
       const handleToggleMusic = () => {
         const audioEl = document.getElementById('bg-calm-audio');
 
         if (isMusicPlaying) {
-          if (audioEl) audioEl.pause();
+          if (audioEl) {
+            try { audioEl.pause(); } catch (e) {}
+          }
           fluteSynthRef.current.stop();
           setIsMusicPlaying(false);
         } else {
-          let started = false;
+          setIsMusicPlaying(true);
+          fluteSynthRef.current.start();
           if (audioEl) {
             audioEl.volume = 0.35;
             audioEl.loop = true;
-            audioEl.play().then(() => {
-              setIsMusicPlaying(true);
-              started = true;
-            }).catch(() => {
-              fluteSynthRef.current.start();
-              setIsMusicPlaying(true);
-            });
-          } else {
-            fluteSynthRef.current.start();
-            setIsMusicPlaying(true);
+            audioEl.play().catch(() => {});
           }
         }
       };
