@@ -1926,6 +1926,28 @@
         return () => { clearTimeout(timer1); clearTimeout(timer2); };
       }, [currentPage]);
 
+      // UNLOCK BROWSER AUTOPLAY POLICY ON FIRST USER INTERACTION (CLICK / TOUCH)
+      useEffect(() => {
+        const unlockAudio = () => {
+          const audioEl = document.getElementById('bg-calm-audio');
+          if (audioEl && audioEl.paused) {
+            audioEl.volume = 0.35;
+            audioEl.loop = true;
+            audioEl.play().then(() => {
+              setIsMusicPlaying(true);
+            }).catch(() => {});
+          }
+        };
+
+        window.addEventListener('click', unlockAudio);
+        window.addEventListener('touchstart', unlockAudio);
+
+        return () => {
+          window.removeEventListener('click', unlockAudio);
+          window.removeEventListener('touchstart', unlockAudio);
+        };
+      }, []);
+
       // CALM MUSIC MUTE / UNMUTE TOGGLE WITH INFINITE LOOP RESTART
       const handleToggleMusic = () => {
         const audioEl = document.getElementById('bg-calm-audio');
