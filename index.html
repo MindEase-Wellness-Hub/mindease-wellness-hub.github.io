@@ -2003,49 +2003,53 @@
         return () => { clearTimeout(timer1); clearTimeout(timer2); };
       }, [currentPage]);
 
-      // FAIL-PROOF WEB AUDIO API AMBIENT FLUTE SYNTHESIZER
+      // GUARANTEED MOBILE PHONE WEB AUDIO API SYNTHESIZER
       const fluteSynthRef = useRef(null);
       if (!fluteSynthRef.current) {
         fluteSynthRef.current = {
-          ctx: null,
+          audioCtx: null,
           intervalId: null,
           isPlaying: false,
+          getAudioCtx: function() {
+            if (!this.audioCtx || this.audioCtx.state === 'closed') {
+              const AudioCtx = window.AudioContext || window.webkitAudioContext;
+              if (AudioCtx) this.audioCtx = new AudioCtx();
+            }
+            if (this.audioCtx && this.audioCtx.state === 'suspended') {
+              this.audioCtx.resume().catch(() => {});
+            }
+            return this.audioCtx;
+          },
           start: function() {
             if (this.isPlaying) return;
             try {
-              const AudioCtx = window.AudioContext || window.webkitAudioContext;
-              if (!AudioCtx) return;
-              if (!this.ctx || this.ctx.state === 'closed') {
-                this.ctx = new AudioCtx();
-              }
-              if (this.ctx.state === 'suspended') {
-                this.ctx.resume();
-              }
+              const ctx = this.getAudioCtx();
+              if (!ctx) return;
               this.isPlaying = true;
               if (this.intervalId) clearInterval(this.intervalId);
 
               // Calming Indian bamboo flute pentatonic notes (D4, F4, G4, A4, C5, D5)
               const notes = [293.66, 349.23, 392.00, 440.00, 523.25, 587.33];
               const playNote = () => {
-                if (!this.isPlaying || !this.ctx) return;
+                if (!this.isPlaying) return;
                 try {
-                  if (this.ctx.state === 'suspended') {
-                    this.ctx.resume().catch(() => {});
-                  }
-                  const osc = this.ctx.createOscillator();
-                  const gain = this.ctx.createGain();
+                  const currentCtx = this.getAudioCtx();
+                  if (!currentCtx) return;
+
+                  const osc = currentCtx.createOscillator();
+                  const gain = currentCtx.createGain();
                   const freq = notes[Math.floor(Math.random() * notes.length)];
 
                   osc.type = 'sine';
-                  osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-                  gain.gain.setValueAtTime(0, this.ctx.currentTime);
-                  gain.gain.linearRampToValueAtTime(0.12, this.ctx.currentTime + 0.5);
-                  gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 3.5);
+                  osc.frequency.setValueAtTime(freq, currentCtx.currentTime);
+                  gain.gain.setValueAtTime(0, currentCtx.currentTime);
+                  gain.gain.linearRampToValueAtTime(0.18, currentCtx.currentTime + 0.5);
+                  gain.gain.linearRampToValueAtTime(0, currentCtx.currentTime + 3.5);
 
                   osc.connect(gain);
-                  gain.connect(this.ctx.destination);
-                  osc.start(this.ctx.currentTime);
-                  osc.stop(this.ctx.currentTime + 3.6);
+                  gain.connect(currentCtx.destination);
+                  osc.start(currentCtx.currentTime);
+                  osc.stop(currentCtx.currentTime + 3.6);
                 } catch (err) {}
               };
 
@@ -2056,9 +2060,9 @@
           stop: function() {
             this.isPlaying = false;
             if (this.intervalId) clearInterval(this.intervalId);
-            if (this.ctx) {
-              try { this.ctx.close(); } catch (e) {}
-              this.ctx = null;
+            if (this.audioCtx) {
+              try { this.audioCtx.close(); } catch (e) {}
+              this.audioCtx = null;
             }
           }
         };
@@ -2077,22 +2081,16 @@
             audioEl.loop = true;
             audioEl.play().catch(() => {});
           }
-          window.removeEventListener('click', unlockAudio);
-          window.removeEventListener('touchstart', unlockAudio);
-          window.removeEventListener('touchend', unlockAudio);
-          window.removeEventListener('pointerdown', unlockAudio);
         };
 
         window.addEventListener('click', unlockAudio, { once: true });
         window.addEventListener('touchstart', unlockAudio, { once: true });
         window.addEventListener('touchend', unlockAudio, { once: true });
-        window.addEventListener('pointerdown', unlockAudio, { once: true });
 
         return () => {
           window.removeEventListener('click', unlockAudio);
           window.removeEventListener('touchstart', unlockAudio);
           window.removeEventListener('touchend', unlockAudio);
-          window.removeEventListener('pointerdown', unlockAudio);
         };
       }, []);
 
