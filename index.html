@@ -1021,8 +1021,8 @@
                         position: 'relative',
                         background: pillar.bg,
                         color: 'white',
-                        borderRadius: '24px',
-                        padding: '24px 28px',
+                        borderRadius: isMobile ? '20px' : '24px',
+                        padding: isMobile ? '20px 22px' : '24px 28px',
                         cursor: 'pointer',
                         boxShadow: isActive || explodeFactor > 0.3 ? '0 18px 45px rgba(0,0,0,0.22)' : '0 8px 24px rgba(0,0,0,0.1)',
                         marginTop: !isMobile && idx > 0 ? '-32px' : '0px',
@@ -1033,7 +1033,7 @@
                         willChange: 'transform'
                       }}
                     >
-                      {/* DYNAMIC CALLOUT LINES & LABEL TAGS (EXPAND OUTWARD ON SCROLL) */}
+                      {/* DESKTOP DYNAMIC CALLOUT LINES & LABEL TAGS (EXPAND OUTWARD ON SCROLL) */}
                       {!isMobile && explodeFactor > 0.1 && (
                         <>
                           {/* LEFT CALLOUT */}
@@ -1099,12 +1099,19 @@
                       {/* CARD HEADER */}
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <span style={{ fontSize: '2.2rem', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))' }}>{pillar.icon}</span>
+                          <span style={{ fontSize: isMobile ? '1.8rem' : '2.2rem', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))' }}>{pillar.icon}</span>
                           <div>
-                            <span style={{ fontSize: '0.68rem', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase', backgroundColor: 'rgba(255,255,255,0.25)', padding: '3px 10px', borderRadius: '20px' }}>
-                              {pillar.badge}
-                            </span>
-                            <h3 style={{ fontSize: '1.25rem', color: 'white', fontWeight: 800, marginTop: '4px', fontFamily: 'var(--font-heading)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                              <span style={{ fontSize: '0.68rem', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase', backgroundColor: 'rgba(255,255,255,0.25)', padding: '3px 10px', borderRadius: '20px' }}>
+                                {pillar.badge}
+                              </span>
+                              {isMobile && (
+                                <span style={{ fontSize: '0.68rem', fontWeight: 800, backgroundColor: 'white', color: '#274C38', padding: '3px 10px', borderRadius: '20px' }}>
+                                  {pillar.leftCallout}
+                                </span>
+                              )}
+                            </div>
+                            <h3 style={{ fontSize: isMobile ? '1.1rem' : '1.25rem', color: 'white', fontWeight: 800, marginTop: '4px', fontFamily: 'var(--font-heading)' }}>
                               {pillar.title}
                             </h3>
                           </div>
@@ -1114,7 +1121,7 @@
                         </span>
                       </div>
 
-                      <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.92)', marginBottom: isActive || explodeFactor > 0.3 ? '14px' : '0px', lineHeight: 1.4 }}>
+                      <p style={{ fontSize: isMobile ? '0.85rem' : '0.9rem', color: 'rgba(255,255,255,0.92)', marginBottom: isActive || isMobile || explodeFactor > 0.3 ? '14px' : '0px', lineHeight: 1.4 }}>
                         {pillar.subtitle}
                       </p>
 
