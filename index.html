@@ -332,6 +332,28 @@
     .side-nav-arrow.left-arrow { left: 16px; }
     .side-nav-arrow.right-arrow { right: 16px; }
 
+    /* BLINKING ARROW ANIMATION WHEN REACHED END OF PAGE */
+    @keyframes blinkArrow {
+      0%, 100% {
+        transform: translateY(-50%) scale(1);
+        background: #FFD700;
+        color: #274C38;
+        box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7);
+      }
+      50% {
+        transform: translateY(-50%) scale(1.35);
+        background: #5B8A72;
+        color: #FFFFFF;
+        box-shadow: 0 0 30px 12px rgba(91, 138, 114, 0.7);
+      }
+    }
+
+    .side-nav-arrow.blinking-arrow {
+      animation: blinkArrow 1s infinite cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 1 !important;
+      border: 2.5px solid #FFD700 !important;
+    }
+
     .whatsapp-widget {
       position: fixed;
       bottom: 24px;
@@ -1940,8 +1962,29 @@
         return () => window.removeEventListener('keydown', handleKeyDown);
       }, [currentPage, showWelcome, modal, nextPage.id, prevPage.id]);
 
-      // SCROLL-DRIVEN PAGE SWITCHING LOGIC (SCROLL DOWN -> NEXT PAGE, SCROLL UP -> PREVIOUS PAGE)
+      // TRACK SCROLL POSITION TO DETECT WHEN USER REACHES THE END OF THE PAGE
+      const [isAtEnd, setIsAtEnd] = useState(false);
+      useEffect(() => {
+        const checkScrollEnd = () => {
+          const scrollY = window.scrollY;
+          const windowHeight = window.innerHeight;
+          const fullHeight = document.documentElement.scrollHeight;
+          if (scrollY + windowHeight >= fullHeight - 50) {
+            setIsAtEnd(true);
+          } else {
+            setIsAtEnd(false);
+          }
+        };
+
+        checkScrollEnd();
+        window.addEventListener('scroll', checkScrollEnd, { passive: true });
+        return () => window.removeEventListener('scroll', checkScrollEnd);
+      }, [currentPage]);
+
+      // SCROLL-DRIVEN & TOUCH SWIPE PAGE SWITCHING LOGIC (MOBILE TOUCH + DESKTOP WHEEL)
       const lastPageSwitchTimeRef = useRef(0);
+      const touchStartYRef = useRef(0);
+
       useEffect(() => {
         const handleWheel = (e) => {
           if (showWelcome || modal) return;
@@ -1957,7 +2000,7 @@
           const isAtBottom = scrollY + windowHeight >= fullHeight - 60;
           const isAtTop = scrollY <= 15;
 
-          // Scroll Down -> Switch to Next Page when reaching bottom or on single screen
+          // Scroll Down -> Switch to Next Page when reaching bottom
           if (e.deltaY > 40 && isAtBottom) {
             lastPageSwitchTimeRef.current = now;
             handleNavigatePage(nextPage.id);
@@ -1969,8 +2012,52 @@
           }
         };
 
+        // TOUCH SWIPE NAVIGATION FOR MOBILE DEVICES
+        const handleTouchStart = (e) => {
+          if (e.touches && e.touches[0]) {
+            touchStartYRef.current = e.touches[0].clientY;
+          }
+        };
+
+        const handleTouchEnd = (e) => {
+          if (showWelcome || modal) return;
+          const targetTag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
+          if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTag)) return;
+
+          const now = Date.now();
+          if (now - lastPageSwitchTimeRef.current < 850) return;
+
+          if (!e.changedTouches || !e.changedTouches[0]) return;
+          const touchEndY = e.changedTouches[0].clientY;
+          const deltaY = touchStartYRef.current - touchEndY; // Positive = Swipe Up / Scroll Down
+
+          const scrollY = window.scrollY;
+          const windowHeight = window.innerHeight;
+          const fullHeight = document.documentElement.scrollHeight;
+          const isAtBottom = scrollY + windowHeight >= fullHeight - 60;
+          const isAtTop = scrollY <= 15;
+
+          // Swipe Up (scroll down) at page bottom -> Next page
+          if (deltaY > 60 && isAtBottom) {
+            lastPageSwitchTimeRef.current = now;
+            handleNavigatePage(nextPage.id);
+          }
+          // Swipe Down (scroll up) at page top -> Prev page
+          else if (deltaY < -60 && isAtTop) {
+            lastPageSwitchTimeRef.current = now;
+            handleNavigatePage(prevPage.id);
+          }
+        };
+
         window.addEventListener('wheel', handleWheel, { passive: true });
-        return () => window.removeEventListener('wheel', handleWheel);
+        window.addEventListener('touchstart', handleTouchStart, { passive: true });
+        window.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+        return () => {
+          window.removeEventListener('wheel', handleWheel);
+          window.removeEventListener('touchstart', handleTouchStart);
+          window.removeEventListener('touchend', handleTouchEnd);
+        };
       }, [currentPage, showWelcome, modal, nextPage.id, prevPage.id]);
 
       const openBooking = (name) => {
@@ -1991,17 +2078,22 @@
           }} />}
 
           {/* FLOATING SIDE ARROW PAGE NAVIGATION */}
-          <button
-            onClick={() => handleNavigatePage(prevPage.id)}
-            className="side-nav-arrow left-arrow"
-            title={`Previous Page (◀ Arrow Key): ${prevPage.title}`}
-          >
-            ◀
-          </button>
+          {/* HIDE LEFT ARROW ON HOME PAGE */}
+          {currentPage !== 'home' && (
+            <button
+              onClick={() => handleNavigatePage(prevPage.id)}
+              className="side-nav-arrow left-arrow"
+              title={`Previous Page: ${prevPage.title}`}
+            >
+              ◀
+            </button>
+          )}
+
+          {/* RIGHT ARROW BUTTON BLINKS/PULSES WHEN AT THE END OF THE PAGE */}
           <button
             onClick={() => handleNavigatePage(nextPage.id)}
-            className="side-nav-arrow right-arrow"
-            title={`Next Page (Arrow Key ▶): ${nextPage.title}`}
+            className={`side-nav-arrow right-arrow ${isAtEnd ? 'blinking-arrow' : ''}`}
+            title={`Next Page: ${nextPage.title}`}
           >
             ▶
           </button>
