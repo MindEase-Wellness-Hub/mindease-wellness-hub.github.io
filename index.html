@@ -1962,26 +1962,37 @@
         return () => window.removeEventListener('keydown', handleKeyDown);
       }, [currentPage, showWelcome, modal, nextPage.id, prevPage.id]);
 
-      // TRACK SCROLL POSITION TO DETECT WHEN USER REACHES THE END OF THE PAGE
+      // TRACK SCROLL POSITION AND 2-STEP CONFIRMATION AT PAGE BOUNDARIES
       const [isAtEnd, setIsAtEnd] = useState(false);
+      const bottomScrollCountRef = useRef(0);
+      const topScrollCountRef = useRef(0);
+      const lastBoundaryActionTimeRef = useRef(0);
+
       useEffect(() => {
-        const checkScrollEnd = () => {
+        const checkScrollPosition = () => {
           const scrollY = window.scrollY;
           const windowHeight = window.innerHeight;
           const fullHeight = document.documentElement.scrollHeight;
-          if (scrollY + windowHeight >= fullHeight - 50) {
+          const isAtBottom = scrollY + windowHeight >= fullHeight - 50;
+
+          if (isAtBottom) {
             setIsAtEnd(true);
           } else {
             setIsAtEnd(false);
+            bottomScrollCountRef.current = 0;
+          }
+
+          if (scrollY > 20) {
+            topScrollCountRef.current = 0;
           }
         };
 
-        checkScrollEnd();
-        window.addEventListener('scroll', checkScrollEnd, { passive: true });
-        return () => window.removeEventListener('scroll', checkScrollEnd);
+        checkScrollPosition();
+        window.addEventListener('scroll', checkScrollPosition, { passive: true });
+        return () => window.removeEventListener('scroll', checkScrollPosition);
       }, [currentPage]);
 
-      // SCROLL-DRIVEN & TOUCH SWIPE PAGE SWITCHING LOGIC (MOBILE TOUCH + DESKTOP WHEEL)
+      // SCROLL-DRIVEN & TOUCH SWIPE PAGE SWITCHING WITH 2-STEP CONFIRMATION
       const lastPageSwitchTimeRef = useRef(0);
       const touchStartYRef = useRef(0);
 
@@ -1992,7 +2003,7 @@
           if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTag)) return;
 
           const now = Date.now();
-          if (now - lastPageSwitchTimeRef.current < 850) return;
+          if (now - lastPageSwitchTimeRef.current < 600) return;
 
           const scrollY = window.scrollY;
           const windowHeight = window.innerHeight;
@@ -2000,19 +2011,39 @@
           const isAtBottom = scrollY + windowHeight >= fullHeight - 60;
           const isAtTop = scrollY <= 15;
 
-          // Scroll Down -> Switch to Next Page when reaching bottom
-          if (e.deltaY > 40 && isAtBottom) {
-            lastPageSwitchTimeRef.current = now;
-            handleNavigatePage(nextPage.id);
+          // 2-Step Scroll Down Confirmation at Page Bottom
+          if (e.deltaY > 30 && isAtBottom) {
+            if (bottomScrollCountRef.current === 0 || (now - lastBoundaryActionTimeRef.current > 3500)) {
+              // 1st Scroll at bottom -> Activate Blinking Arrow notification
+              bottomScrollCountRef.current = 1;
+              setIsAtEnd(true);
+              lastBoundaryActionTimeRef.current = now;
+              lastPageSwitchTimeRef.current = now;
+            } else {
+              // 2nd Scroll at bottom -> Navigate to Next Page!
+              bottomScrollCountRef.current = 0;
+              setIsAtEnd(false);
+              lastPageSwitchTimeRef.current = now;
+              handleNavigatePage(nextPage.id);
+            }
           }
-          // Scroll Up -> Switch to Prev Page when reaching top
-          else if (e.deltaY < -40 && isAtTop) {
-            lastPageSwitchTimeRef.current = now;
-            handleNavigatePage(prevPage.id);
+          // 2-Step Scroll Up Confirmation at Page Top
+          else if (e.deltaY < -30 && isAtTop) {
+            if (topScrollCountRef.current === 0 || (now - lastBoundaryActionTimeRef.current > 3500)) {
+              // 1st Scroll at top
+              topScrollCountRef.current = 1;
+              lastBoundaryActionTimeRef.current = now;
+              lastPageSwitchTimeRef.current = now;
+            } else {
+              // 2nd Scroll at top -> Navigate to Prev Page!
+              topScrollCountRef.current = 0;
+              lastPageSwitchTimeRef.current = now;
+              handleNavigatePage(prevPage.id);
+            }
           }
         };
 
-        // TOUCH SWIPE NAVIGATION FOR MOBILE DEVICES
+        // TOUCH SWIPE 2-STEP CONFIRMATION FOR MOBILE DEVICES
         const handleTouchStart = (e) => {
           if (e.touches && e.touches[0]) {
             touchStartYRef.current = e.touches[0].clientY;
@@ -2025,7 +2056,7 @@
           if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTag)) return;
 
           const now = Date.now();
-          if (now - lastPageSwitchTimeRef.current < 850) return;
+          if (now - lastPageSwitchTimeRef.current < 600) return;
 
           if (!e.changedTouches || !e.changedTouches[0]) return;
           const touchEndY = e.changedTouches[0].clientY;
@@ -2037,15 +2068,31 @@
           const isAtBottom = scrollY + windowHeight >= fullHeight - 60;
           const isAtTop = scrollY <= 15;
 
-          // Swipe Up (scroll down) at page bottom -> Next page
-          if (deltaY > 60 && isAtBottom) {
-            lastPageSwitchTimeRef.current = now;
-            handleNavigatePage(nextPage.id);
+          // 2-Step Swipe Up Confirmation at Page Bottom
+          if (deltaY > 50 && isAtBottom) {
+            if (bottomScrollCountRef.current === 0 || (now - lastBoundaryActionTimeRef.current > 3500)) {
+              bottomScrollCountRef.current = 1;
+              setIsAtEnd(true);
+              lastBoundaryActionTimeRef.current = now;
+              lastPageSwitchTimeRef.current = now;
+            } else {
+              bottomScrollCountRef.current = 0;
+              setIsAtEnd(false);
+              lastPageSwitchTimeRef.current = now;
+              handleNavigatePage(nextPage.id);
+            }
           }
-          // Swipe Down (scroll up) at page top -> Prev page
-          else if (deltaY < -60 && isAtTop) {
-            lastPageSwitchTimeRef.current = now;
-            handleNavigatePage(prevPage.id);
+          // 2-Step Swipe Down Confirmation at Page Top
+          else if (deltaY < -50 && isAtTop) {
+            if (topScrollCountRef.current === 0 || (now - lastBoundaryActionTimeRef.current > 3500)) {
+              topScrollCountRef.current = 1;
+              lastBoundaryActionTimeRef.current = now;
+              lastPageSwitchTimeRef.current = now;
+            } else {
+              topScrollCountRef.current = 0;
+              lastPageSwitchTimeRef.current = now;
+              handleNavigatePage(prevPage.id);
+            }
           }
         };
 
