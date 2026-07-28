@@ -19,6 +19,9 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <!-- Canvas Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <!-- GSAP & ScrollTrigger for Scroll-Driven Pinning Animation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
   <style>
     :root {
@@ -850,10 +853,12 @@
       );
     }
 
-    // --- DECONSTRUCTED WELLNESS STACK COMPONENT ---
+    // --- SCROLL-TRIGGERED EXPLODING WELLNESS STACK & SHOWCASE COMPONENT ---
     function DeconstructedWellnessStack({ onNavigatePage, onOpenBooking }) {
+      const [scrollProgress, setScrollProgress] = useState(0);
       const [activeLayer, setActiveLayer] = useState(0);
-      const [isDeconstructed, setIsDeconstructed] = useState(false);
+      const [isMobile, setIsMobile] = useState(false);
+      const containerRef = useRef(null);
 
       const pillars = [
         {
@@ -864,6 +869,8 @@
           bg: 'linear-gradient(135deg, #5B8A72 0%, #385E4C 100%)',
           accentColor: '#5B8A72',
           badge: 'PILLAR 01',
+          leftCallout: '🛡️ Safe & Confidential',
+          rightCallout: '🌿 Daily Emotional Regulation',
           features: ['5-Minute Mindful Breathing', 'Guided Sleep & Calm Audio', 'Body Scan & Muscle Relaxation'],
           desc: 'Build emotional resilience through daily grounding exercises and calm practices designed to reduce anxiety and quiet an overactive mind.'
         },
@@ -875,6 +882,8 @@
           bg: 'linear-gradient(135deg, #8E7DBE 0%, #554473 100%)',
           accentColor: '#8E7DBE',
           badge: 'PILLAR 02',
+          leftCallout: '🫂 100% Empathetic Listeners',
+          rightCallout: '💬 Shared Student Circles',
           features: ['Judgment-Free Listening', 'Student Support Groups', 'Shared Experience Exchanges'],
           desc: 'Connect with fellow peers who truly understand your journey. Share your thoughts in a 100% confidential and warm community.'
         },
@@ -886,6 +895,8 @@
           bg: 'linear-gradient(135deg, #E88E7D 0%, #C46252 100%)',
           accentColor: '#E88E7D',
           badge: 'PILLAR 03',
+          leftCallout: '🎓 Licensed Psychologists',
+          rightCallout: '⭐ Student-Friendly Workshops',
           features: ['One-on-One Counseling', 'Burnout Prevention Webinars', 'Personal Growth Roadmaps'],
           desc: 'Access licensed psychologists and wellness coaches for professional advice, structured therapy sessions, and personal development tools.'
         },
@@ -897,13 +908,59 @@
           bg: 'linear-gradient(135deg, #385E4C 0%, #274C38 100%)',
           accentColor: '#274C38',
           badge: 'PILLAR 04',
+          leftCallout: '🎨 Art Therapy & Gaming',
+          rightCallout: '🎪 De-Stress Events & Carnivals',
           features: ['Art Without Rules Therapy', 'Cozy Tea & Talk Lounges', 'Board Game & Micro-App Booths'],
           desc: 'Engage in relaxing offline events, creative crafts, and social gaming sessions that make mental wellness fun, interactive, and uplifting.'
         }
       ];
 
+      // Detect mobile screens
+      useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 850);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+      }, []);
+
+      // Scroll listener for smooth progress calculation (0 to 1)
+      useEffect(() => {
+        if (isMobile) return;
+        const handleScroll = () => {
+          if (!containerRef.current) return;
+          const rect = containerRef.current.getBoundingClientRect();
+          const totalHeight = rect.height - window.innerHeight;
+          if (totalHeight <= 0) return;
+          const currentScroll = Math.max(0, -rect.top);
+          const progress = Math.min(1, Math.max(0, currentScroll / totalHeight));
+          setScrollProgress(progress);
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+      }, [isMobile]);
+
+      // Calculate explosion factor: rises from 0 -> 1 during first 50%, then re-assembles from 1 -> 0 during 50% -> 100%
+      let explodeFactor = 0;
+      if (!isMobile) {
+        if (scrollProgress <= 0.5) {
+          explodeFactor = scrollProgress * 2; // 0 to 1
+        } else {
+          explodeFactor = (1 - scrollProgress) * 2; // 1 to 0
+        }
+      }
+
+      // Vertical displacements for exploded view
+      const translateYs = [
+        -110 * explodeFactor,
+        -35 * explodeFactor,
+        40 * explodeFactor,
+        115 * explodeFactor
+      ];
+
       return (
         <div style={{ marginTop: '70px', paddingTop: '40px', borderTop: '2px dashed rgba(91, 138, 114, 0.25)' }}>
+          {/* HEADER */}
           <div style={{ textAlign: 'center', marginBottom: '36px' }}>
             <div className="brush-banner-purple" style={{ fontSize: '0.8rem', marginBottom: '12px' }}>
               📚 THE WELLNESS FOUNDATION
@@ -911,119 +968,247 @@
             <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 800, color: '#274C38', marginBottom: '10px' }}>
               Deconstructed Mind Ease Wellness Stack
             </h2>
-            <p style={{ color: '#5A6E63', maxWidth: '640px', margin: '0 auto 20px', fontSize: '0.98rem' }}>
-              Our holistic mental health architecture built layer-by-layer. Click or hover any pillar to deconstruct and inspect its core benefits!
+            <p style={{ color: '#5A6E63', maxWidth: '680px', margin: '0 auto 16px', fontSize: '0.98rem' }}>
+              {isMobile
+                ? "Click or tap any layer to inspect its core mental health foundation!"
+                : "Scroll down to see the stack smoothly explode into depth view with dynamic benefit callouts, then re-assemble before moving forward!"}
             </p>
 
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', backgroundColor: 'rgba(255,255,255,0.9)', padding: '6px 16px', borderRadius: '50px', boxShadow: '0 4px 14px rgba(0,0,0,0.06)', border: '1px solid rgba(91,138,114,0.3)' }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#274C38' }}>Stack Layout:</span>
-              <button
-                onClick={() => setIsDeconstructed(false)}
-                style={{
-                  padding: '6px 14px', borderRadius: '20px', border: 'none', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer',
-                  backgroundColor: !isDeconstructed ? '#5B8A72' : 'transparent', color: !isDeconstructed ? 'white' : '#5A6E63', transition: 'all 0.25s ease'
-                }}
-              >
-                🥞 3D Layered Deck
-              </button>
-              <button
-                onClick={() => setIsDeconstructed(true)}
-                style={{
-                  padding: '6px 14px', borderRadius: '20px', border: 'none', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer',
-                  backgroundColor: isDeconstructed ? '#5B8A72' : 'transparent', color: isDeconstructed ? 'white' : '#5A6E63', transition: 'all 0.25s ease'
-                }}
-              >
-                ✨ Deconstructed View
-              </button>
+            {!isMobile && (
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(91,138,114,0.1)', padding: '6px 16px', borderRadius: '50px', border: '1px solid rgba(91,138,114,0.3)', color: '#274C38', fontSize: '0.85rem', fontWeight: 700 }}>
+                <span>📜 Scroll Progress: Math.round({scrollProgress * 100})%</span>
+                <div style={{ width: '80px', height: '6px', backgroundColor: 'rgba(91,138,114,0.2)', borderRadius: '10px', overflow: 'hidden' }}>
+                  <div style={{ width: `${scrollProgress * 100}%`, height: '100%', backgroundColor: '#5B8A72', transition: 'width 0.1s linear' }}></div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* SCROLL-PINNED EXPLODING CONTAINER */}
+          <div
+            ref={containerRef}
+            style={{
+              position: isMobile ? 'relative' : 'relative',
+              height: isMobile ? 'auto' : '220vh',
+              marginBottom: '40px'
+            }}
+          >
+            <div style={{
+              position: isMobile ? 'relative' : 'sticky',
+              top: isMobile ? '0' : '90px',
+              maxWidth: '920px',
+              margin: '0 auto',
+              padding: '20px 16px'
+            }}>
+              <div style={{
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: isMobile ? '16px' : '0px'
+              }}>
+                {pillars.map((pillar, idx) => {
+                  const isActive = activeLayer === idx;
+                  const currentTY = isMobile ? 0 : translateYs[idx];
+                  const calloutOpacity = isMobile ? 1 : Math.min(1, explodeFactor * 1.5);
+                  const calloutTranslateX = isMobile ? 0 : (1 - explodeFactor) * 40;
+
+                  return (
+                    <div
+                      key={pillar.id}
+                      onClick={() => setActiveLayer(idx)}
+                      onMouseEnter={() => setActiveLayer(idx)}
+                      style={{
+                        position: 'relative',
+                        background: pillar.bg,
+                        color: 'white',
+                        borderRadius: '24px',
+                        padding: '24px 28px',
+                        cursor: 'pointer',
+                        boxShadow: isActive || explodeFactor > 0.3 ? '0 18px 45px rgba(0,0,0,0.22)' : '0 8px 24px rgba(0,0,0,0.1)',
+                        marginTop: !isMobile && idx > 0 ? '-32px' : '0px',
+                        zIndex: isActive ? 30 : pillars.length - idx,
+                        transform: `translateY(${currentTY}px) ${isActive ? 'scale(1.02)' : 'scale(1)'}`,
+                        transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease',
+                        border: '2px solid rgba(255,255,255,0.35)',
+                        willChange: 'transform'
+                      }}
+                    >
+                      {/* DYNAMIC CALLOUT LINES & LABEL TAGS (EXPAND OUTWARD ON SCROLL) */}
+                      {!isMobile && explodeFactor > 0.1 && (
+                        <>
+                          {/* LEFT CALLOUT */}
+                          <div style={{
+                            position: 'absolute',
+                            left: '-190px',
+                            top: '50%',
+                            transform: `translateY(-50%) translateX(${-calloutTranslateX}px)`,
+                            opacity: calloutOpacity,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            transition: 'all 0.3s ease',
+                            pointerEvents: 'none'
+                          }}>
+                            <div style={{
+                              backgroundColor: 'white',
+                              color: '#274C38',
+                              padding: '6px 14px',
+                              borderRadius: '20px',
+                              fontWeight: 800,
+                              fontSize: '0.78rem',
+                              boxShadow: '0 6px 18px rgba(0,0,0,0.15)',
+                              border: `2px solid ${pillar.accentColor}`,
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {pillar.leftCallout}
+                            </div>
+                            <div style={{ width: '35px', height: '2px', backgroundColor: pillar.accentColor }}></div>
+                          </div>
+
+                          {/* RIGHT CALLOUT */}
+                          <div style={{
+                            position: 'absolute',
+                            right: '-190px',
+                            top: '50%',
+                            transform: `translateY(-50%) translateX(${calloutTranslateX}px)`,
+                            opacity: calloutOpacity,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            transition: 'all 0.3s ease',
+                            pointerEvents: 'none'
+                          }}>
+                            <div style={{ width: '35px', height: '2px', backgroundColor: pillar.accentColor }}></div>
+                            <div style={{
+                              backgroundColor: 'white',
+                              color: '#274C38',
+                              padding: '6px 14px',
+                              borderRadius: '20px',
+                              fontWeight: 800,
+                              fontSize: '0.78rem',
+                              boxShadow: '0 6px 18px rgba(0,0,0,0.15)',
+                              border: `2px solid ${pillar.accentColor}`,
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {pillar.rightCallout}
+                            </div>
+                          </div>
+                        </>
+                      )}
+
+                      {/* CARD HEADER */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <span style={{ fontSize: '2.2rem', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))' }}>{pillar.icon}</span>
+                          <div>
+                            <span style={{ fontSize: '0.68rem', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase', backgroundColor: 'rgba(255,255,255,0.25)', padding: '3px 10px', borderRadius: '20px' }}>
+                              {pillar.badge}
+                            </span>
+                            <h3 style={{ fontSize: '1.25rem', color: 'white', fontWeight: 800, marginTop: '4px', fontFamily: 'var(--font-heading)' }}>
+                              {pillar.title}
+                            </h3>
+                          </div>
+                        </div>
+                        <span style={{ fontSize: '1.1rem', transform: isActive ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}>
+                          ▼
+                        </span>
+                      </div>
+
+                      <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.92)', marginBottom: isActive || explodeFactor > 0.3 ? '14px' : '0px', lineHeight: 1.4 }}>
+                        {pillar.subtitle}
+                      </p>
+
+                      {/* EXPANDED CONTENT DETAILS */}
+                      {(isActive || isMobile || explodeFactor > 0.3) && (
+                        <div style={{ animation: 'welcomePop 0.3s ease-out', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.25)', marginTop: '10px' }}>
+                          <p style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.95)', marginBottom: '12px', lineHeight: 1.5 }}>
+                            {pillar.desc}
+                          </p>
+
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+                            {pillar.features.map((feat, fIdx) => (
+                              <span key={fIdx} style={{ fontSize: '0.78rem', fontWeight: 700, backgroundColor: 'rgba(255,255,255,0.22)', padding: '4px 12px', borderRadius: '14px' }}>
+                                ✓ {feat}
+                              </span>
+                            ))}
+                          </div>
+
+                          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); onOpenBooking(pillar.title); }}
+                              style={{
+                                backgroundColor: 'white', color: pillar.accentColor, border: 'none', padding: '8px 18px',
+                                borderRadius: '50px', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                              }}
+                            >
+                              📅 Book {pillar.title.split(' ')[0]} Session →
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); onNavigatePage('offerings'); }}
+                              style={{
+                                backgroundColor: 'transparent', color: 'white', border: '1.5px solid white', padding: '8px 16px',
+                                borderRadius: '50px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer'
+                              }}
+                            >
+                              Explore Offerings
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: isDeconstructed ? 'repeat(auto-fit, minmax(260px, 1fr))' : '1fr', gap: isDeconstructed ? '20px' : '0px', maxWidth: isDeconstructed ? '1200px' : '780px', margin: '0 auto' }}>
-            {pillars.map((pillar, idx) => {
-              const isActive = activeLayer === idx;
-              return (
-                <div
-                  key={pillar.id}
-                  onClick={() => setActiveLayer(idx)}
-                  onMouseEnter={() => setActiveLayer(idx)}
-                  style={{
-                    position: 'relative',
-                    background: pillar.bg,
-                    color: 'white',
-                    borderRadius: '24px',
-                    padding: '26px 30px',
-                    cursor: 'pointer',
-                    boxShadow: isActive ? '0 20px 40px rgba(0,0,0,0.22)' : '0 8px 24px rgba(0,0,0,0.1)',
-                    marginTop: !isDeconstructed && idx > 0 ? '-30px' : '0px',
-                    zIndex: isActive ? 20 : pillars.length - idx,
-                    transform: isDeconstructed 
-                      ? (isActive ? 'translateY(-6px) scale(1.02)' : 'translateY(0) scale(1)')
-                      : (isActive ? 'translateY(-14px) scale(1.02)' : `translateY(${idx * 4}px)`),
-                    transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                    border: '2px solid rgba(255,255,255,0.3)'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <span style={{ fontSize: '2.2rem', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))' }}>{pillar.icon}</span>
-                      <div>
-                        <span style={{ fontSize: '0.68rem', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase', backgroundColor: 'rgba(255,255,255,0.25)', padding: '3px 10px', borderRadius: '20px' }}>
-                          {pillar.badge}
-                        </span>
-                        <h3 style={{ fontSize: '1.25rem', color: 'white', fontWeight: 800, marginTop: '4px', fontFamily: 'var(--font-heading)' }}>
-                          {pillar.title}
-                        </h3>
-                      </div>
+          {/* INTERACTIVE OFFERINGS SHOWCASE CARDS (HORIZONTAL TILT SHOWCASE BELOW EXPLODING STACK) */}
+          <div style={{ marginTop: '50px', paddingTop: '40px', borderTop: '2px dashed rgba(91, 138, 114, 0.25)' }}>
+            <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+              <div className="brush-banner-green" style={{ fontSize: '0.8rem', marginBottom: '12px' }}>
+                ⭐ FEATURED OFFERINGS SHOWCASE
+              </div>
+              <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 800, color: '#274C38' }}>
+                Interactive Offerings Showcase
+              </h2>
+              <p style={{ color: '#5A6E63', maxWidth: '600px', margin: '8px auto 0', fontSize: '0.95rem' }}>
+                Move your mouse over any showcase card to experience smooth 3D tilt interaction!
+              </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '22px', maxWidth: '1200px', margin: '0 auto' }}>
+              {[
+                { icon: "🎉", title: "Fun & Engaging Activities", tag: "POPULAR", desc: "De-stress carnivals, board game cafés, art therapy and stress balloon pop.", accent: "#5B8A72", target: "activities" },
+                { icon: "🧘", title: "Workshops & Sessions", tag: "FEATURED", desc: "Interactive workshops on mindfulness, confidence, relationships and burnout prevention.", accent: "#8E7DBE", target: "experience" },
+                { icon: "🫂", title: "Peer Support Circles", tag: "SAFE SPACE", desc: "Empathetic student circles and 100% confidential sharing in a warm community.", accent: "#E88E7D", target: "offerings" },
+                { icon: "🤝", title: "Expert Collaborations", tag: "PROFESSIONAL", desc: "Partnering with licensed mental health experts for 1-on-1 consultations & campus events.", accent: "#385E4C", target: "collaborate" }
+              ].map((showcase, sIdx) => (
+                <TiltCard key={sIdx} style={{ padding: '26px', borderRadius: '22px', borderTop: `4px solid ${showcase.accent}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+                      <span style={{ fontSize: '2.4rem' }}>{showcase.icon}</span>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 800, color: showcase.accent, backgroundColor: 'rgba(91,138,114,0.1)', padding: '4px 12px', borderRadius: '20px' }}>
+                        {showcase.tag}
+                      </span>
                     </div>
-                    <span style={{ fontSize: '1.2rem', transform: isActive ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}>
-                      ▼
-                    </span>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#274C38', marginBottom: '8px' }}>
+                      {showcase.title}
+                    </h3>
+                    <p style={{ color: '#5A6E63', fontSize: '0.9rem', lineHeight: 1.5 }}>
+                      {showcase.desc}
+                    </p>
                   </div>
-
-                  <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.9)', marginBottom: isActive ? '16px' : '0px', lineHeight: 1.4 }}>
-                    {pillar.subtitle}
-                  </p>
-
-                  {/* EXPANDED DETAILS WHEN ACTIVE OR DECONSTRUCTED */}
-                  {(isActive || isDeconstructed) && (
-                    <div style={{ animation: 'welcomePop 0.3s ease-out', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.25)', marginTop: '12px' }}>
-                      <p style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.95)', marginBottom: '14px', lineHeight: 1.5 }}>
-                        {pillar.desc}
-                      </p>
-
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '18px' }}>
-                        {pillar.features.map((feat, fIdx) => (
-                          <span key={fIdx} style={{ fontSize: '0.78rem', fontWeight: 700, backgroundColor: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '14px' }}>
-                            ✓ {feat}
-                          </span>
-                        ))}
-                      </div>
-
-                      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); onOpenBooking(pillar.title); }}
-                          style={{
-                            backgroundColor: 'white', color: pillar.accentColor, border: 'none', padding: '8px 18px',
-                            borderRadius: '50px', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-                          }}
-                        >
-                          📅 Book {pillar.title.split(' ')[0]} Session →
-                        </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); onNavigatePage('offerings'); }}
-                          style={{
-                            backgroundColor: 'transparent', color: 'white', border: '1.5px solid white', padding: '8px 16px',
-                            borderRadius: '50px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer'
-                          }}
-                        >
-                          Explore Offerings
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                  <div style={{ marginTop: '22px', display: 'flex', gap: '8px' }}>
+                    <MagneticButton onClick={() => onOpenBooking(showcase.title)} className="btn-primary" style={{ padding: '8px 16px', fontSize: '0.82rem', flex: 1, justifyContent: 'center' }}>
+                      📅 Book Now →
+                    </MagneticButton>
+                    <MagneticButton onClick={() => onNavigatePage(showcase.target)} className="btn-secondary" style={{ padding: '8px 14px', fontSize: '0.82rem' }}>
+                      Explore
+                    </MagneticButton>
+                  </div>
+                </TiltCard>
+              ))}
+            </div>
           </div>
         </div>
       );
