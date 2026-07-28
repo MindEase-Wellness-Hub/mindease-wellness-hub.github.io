@@ -1971,7 +1971,9 @@
         fluteSynthRef.current = {
           ctx: null,
           intervalId: null,
+          isPlaying: false,
           start: function() {
+            if (this.isPlaying) return;
             try {
               const AudioCtx = window.AudioContext || window.webkitAudioContext;
               if (!AudioCtx) return;
@@ -1981,33 +1983,37 @@
               if (this.ctx.state === 'suspended') {
                 this.ctx.resume();
               }
+              this.isPlaying = true;
               if (this.intervalId) clearInterval(this.intervalId);
 
-              // Calming bamboo flute pentatonic notes (D4, F4, G4, A4, C5, D5)
+              // Calming Indian bamboo flute pentatonic notes (D4, F4, G4, A4, C5, D5)
               const notes = [293.66, 349.23, 392.00, 440.00, 523.25, 587.33];
               const playNote = () => {
-                if (!this.ctx || this.ctx.state === 'closed') return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                const freq = notes[Math.floor(Math.random() * notes.length)];
+                if (!this.isPlaying || !this.ctx || this.ctx.state === 'closed') return;
+                try {
+                  const osc = this.ctx.createOscillator();
+                  const gain = this.ctx.createGain();
+                  const freq = notes[Math.floor(Math.random() * notes.length)];
 
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-                gain.gain.setValueAtTime(0.001, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.06, this.ctx.currentTime + 0.5);
-                gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 3.8);
+                  osc.type = 'sine';
+                  osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                  gain.gain.setValueAtTime(0.001, this.ctx.currentTime);
+                  gain.gain.exponentialRampToValueAtTime(0.08, this.ctx.currentTime + 0.5);
+                  gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 3.8);
 
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start(this.ctx.currentTime);
-                osc.stop(this.ctx.currentTime + 3.9);
+                  osc.connect(gain);
+                  gain.connect(this.ctx.destination);
+                  osc.start(this.ctx.currentTime);
+                  osc.stop(this.ctx.currentTime + 3.9);
+                } catch (err) {}
               };
 
               playNote();
-              this.intervalId = setInterval(playNote, 2600);
+              this.intervalId = setInterval(playNote, 2400);
             } catch (e) {}
           },
           stop: function() {
+            this.isPlaying = false;
             if (this.intervalId) clearInterval(this.intervalId);
             if (this.ctx) {
               try { this.ctx.close(); } catch (e) {}
@@ -2027,7 +2033,6 @@
             audioEl.play().then(() => {
               setIsMusicPlaying(true);
             }).catch(() => {
-              // Fallback to Web Audio Flute Synthesizer if external MP3 blocked
               fluteSynthRef.current.start();
               setIsMusicPlaying(true);
             });
@@ -2046,19 +2051,20 @@
         };
       }, []);
 
-      // CALM MUSIC MUTE / UNMUTE TOGGLE WITH INSTANT STATE FLIP & FAIL-PROOF AUDIO
-      const handleToggleMusic = () => {
+      // CALM MUSIC MUTE / UNMUTE TOGGLE WITH INSTANT STATE FLIP & DUAL SYNTH/MP3 AUDIO
+      const handleToggleMusic = (e) => {
+        if (e && e.preventDefault) e.preventDefault();
         const audioEl = document.getElementById('bg-calm-audio');
 
         if (isMusicPlaying) {
-          if (audioEl) {
-            try { audioEl.pause(); } catch (e) {}
-          }
-          fluteSynthRef.current.stop();
           setIsMusicPlaying(false);
+          if (audioEl) {
+            try { audioEl.pause(); } catch (err) {}
+          }
+          if (fluteSynthRef.current) fluteSynthRef.current.stop();
         } else {
           setIsMusicPlaying(true);
-          fluteSynthRef.current.start();
+          if (fluteSynthRef.current) fluteSynthRef.current.start();
           if (audioEl) {
             audioEl.volume = 0.35;
             audioEl.loop = true;
