@@ -2064,33 +2064,35 @@
         };
       }
 
-      // UNLOCK BROWSER AUTOPLAY POLICY ONCE ON FIRST USER INTERACTION (ONE-TIME ONLY)
+      // UNIVERSAL BROWSER & MOBILE DEVICE AUDIO UNLOCK LISTENER (ONE-TIME ONLY)
       useEffect(() => {
         const unlockAudio = () => {
+          setIsMusicPlaying(true);
+          if (fluteSynthRef.current) {
+            fluteSynthRef.current.start();
+          }
           const audioEl = document.getElementById('bg-calm-audio');
           if (audioEl) {
             audioEl.volume = 0.35;
             audioEl.loop = true;
-            audioEl.play().then(() => {
-              setIsMusicPlaying(true);
-            }).catch(() => {
-              if (fluteSynthRef.current) fluteSynthRef.current.start();
-              setIsMusicPlaying(true);
-            });
-          } else {
-            if (fluteSynthRef.current) fluteSynthRef.current.start();
-            setIsMusicPlaying(true);
+            audioEl.play().catch(() => {});
           }
           window.removeEventListener('click', unlockAudio);
           window.removeEventListener('touchstart', unlockAudio);
+          window.removeEventListener('touchend', unlockAudio);
+          window.removeEventListener('pointerdown', unlockAudio);
         };
 
         window.addEventListener('click', unlockAudio, { once: true });
         window.addEventListener('touchstart', unlockAudio, { once: true });
+        window.addEventListener('touchend', unlockAudio, { once: true });
+        window.addEventListener('pointerdown', unlockAudio, { once: true });
 
         return () => {
           window.removeEventListener('click', unlockAudio);
           window.removeEventListener('touchstart', unlockAudio);
+          window.removeEventListener('touchend', unlockAudio);
+          window.removeEventListener('pointerdown', unlockAudio);
         };
       }, []);
 
@@ -2422,39 +2424,6 @@
               </div>
             </div>
           )}
-
-          {/* MOBILE FLOATING AUDIO BAR FOR DIRECT PHONE TOUCH SOUND ACTIVATION */}
-          <div style={{
-            position: 'fixed',
-            bottom: '90px',
-            right: '18px',
-            zIndex: 9990,
-            display: 'flex',
-            alignItems: 'center'
-          }}>
-            <button
-              onClick={handleToggleMusic}
-              onTouchEnd={(e) => { e.preventDefault(); handleToggleMusic(e); }}
-              style={{
-                backgroundColor: isMusicPlaying ? '#5B8A72' : '#E88E7D',
-                color: 'white',
-                border: 'none',
-                borderRadius: '50px',
-                padding: '10px 18px',
-                fontWeight: 800,
-                fontSize: '0.85rem',
-                boxShadow: '0 8px 25px rgba(0,0,0,0.25)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                cursor: 'pointer',
-                touchAction: 'manipulation',
-                animation: isMusicPlaying ? 'none' : 'welcomePop 1.5s infinite alternate'
-              }}
-            >
-              <span>{isMusicPlaying ? '🎵 Calm Flute Playing' : '🪈 Tap for Flute Sound'}</span>
-            </button>
-          </div>
 
           <Footer onNavigatePage={handleNavigatePage} onShowWelcome={() => setShowWelcome(true)} />
           <WhatsAppChatWidget />
