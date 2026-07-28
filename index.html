@@ -475,12 +475,8 @@
 <body>
   <div id="root"></div>
 
-  <!-- Calming Peaceful Indian Bamboo Flute & Guitar Meditation Background Audio (Multi-Source Fallback) -->
-  <audio id="bg-calm-audio" loop preload="auto">
-    <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_c8c8266453.mp3" type="audio/mpeg" />
-    <source src="https://cdn.pixabay.com/audio/2022/01/18/audio_d0a13f69d2.mp3" type="audio/mpeg" />
-    <source src="https://cdn.pixabay.com/audio/2022/02/10/audio_b226e6e22c.mp3" type="audio/mpeg" />
-    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=meditation-peaceful-piano-112269.mp3" type="audio/mpeg" />
+  <!-- Calming Peaceful Indian Bamboo Flute & Guitar Meditation Background Audio -->
+  <audio id="bg-calm-audio" loop preload="auto" playsinline controlsList="nodownload" src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=meditation-peaceful-piano-112269.mp3">
   </audio>
 
   <script type="text/babel">
@@ -2094,11 +2090,9 @@
         };
       }, []);
 
-      // CALM MUSIC MUTE / UNMUTE TOGGLE WITH INSTANT STATE FLIP & DUAL SYNTH/MP3 AUDIO
+      // CALM MUSIC MUTE / UNMUTE TOGGLE WITH SYNCHRONOUS MOBILE PLAYBACK & ERROR LOGGING
       const handleToggleMusic = (e) => {
-        if (e) {
-          try { e.preventDefault(); e.stopPropagation(); } catch (err) {}
-        }
+        if (e && e.preventDefault) e.preventDefault();
         const audioEl = document.getElementById('bg-calm-audio');
 
         if (isMusicPlaying) {
@@ -2107,7 +2101,9 @@
             try {
               audioEl.pause();
               audioEl.currentTime = 0;
-            } catch (err) {}
+            } catch (err) {
+              console.error("Audio playback error:", err);
+            }
           }
           if (fluteSynthRef.current) {
             fluteSynthRef.current.stop();
@@ -2120,7 +2116,11 @@
           if (audioEl) {
             audioEl.volume = 0.35;
             audioEl.loop = true;
-            audioEl.play().catch(() => {});
+            audioEl.play().then(() => {
+              setIsMusicPlaying(true);
+            }).catch((err) => {
+              console.error("Audio playback error:", err);
+            });
           }
         }
       };
