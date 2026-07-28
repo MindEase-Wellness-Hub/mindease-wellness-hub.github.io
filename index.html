@@ -455,9 +455,9 @@
 <body>
   <div id="root"></div>
 
-  <!-- Open Copyright Calming Peaceful Piano Meditation Background Audio (Continuous Infinite Loop) -->
+  <!-- Open Copyright Calming Light Flute & Guitar Meditation Background Audio (Continuous Infinite Loop) -->
   <audio id="bg-calm-audio" loop preload="auto">
-    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=meditation-peaceful-piano-112269.mp3" type="audio/mpeg" />
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8266453.mp3?filename=relaxing-flute-and-guitar-meditation-10904.mp3" type="audio/mpeg" />
   </audio>
 
   <script type="text/babel">
@@ -1926,7 +1926,7 @@
         return () => { clearTimeout(timer1); clearTimeout(timer2); };
       }, [currentPage]);
 
-      // CALM GUITAR MUSIC MUTE / UNMUTE TOGGLE WITH INFINITE LOOP RESTART
+      // CALM FLUTE & GUITAR MUSIC MUTE / UNMUTE TOGGLE WITH INFINITE LOOP RESTART
       const handleToggleMusic = () => {
         const audioEl = document.getElementById('bg-calm-audio');
         if (!audioEl) return;
@@ -1935,7 +1935,7 @@
           audioEl.pause();
           setIsMusicPlaying(false);
         } else {
-          audioEl.volume = 0.45;
+          audioEl.volume = 0.22;
           audioEl.loop = true;
           audioEl.play().then(() => {
             setIsMusicPlaying(true);
@@ -2133,7 +2133,7 @@
             setShowWelcome(false);
             const audioEl = document.getElementById('bg-calm-audio');
             if (audioEl) {
-              audioEl.volume = 0.45;
+              audioEl.volume = 0.22;
               audioEl.loop = true;
               audioEl.play().then(() => setIsMusicPlaying(true)).catch(() => {});
             }
