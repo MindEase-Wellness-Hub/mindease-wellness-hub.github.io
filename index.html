@@ -2001,7 +2001,7 @@
         return () => { clearTimeout(timer1); clearTimeout(timer2); };
       }, [currentPage]);
 
-      // GUARANTEED MOBILE PHONE WEB AUDIO API SYNTHESIZER
+      // GUARANTEED MOBILE PHONE SOOTHING PIANO & ACOUSTIC AMBIENT SYNTHESIZER
       const fluteSynthRef = useRef(null);
       if (!fluteSynthRef.current) {
         fluteSynthRef.current = {
@@ -2026,8 +2026,8 @@
               this.isPlaying = true;
               if (this.intervalId) clearInterval(this.intervalId);
 
-              // Calming Indian bamboo flute pentatonic notes (D4, F4, G4, A4, C5, D5)
-              const notes = [293.66, 349.23, 392.00, 440.00, 523.25, 587.33];
+              // Soothing Acoustic Guitar & Piano ambient chord notes (C4, E4, G4, A4, B4, D5)
+              const notes = [261.63, 329.63, 392.00, 440.00, 493.88, 587.33];
               const playNote = () => {
                 if (!this.isPlaying) return;
                 try {
@@ -2036,23 +2036,30 @@
 
                   const osc = currentCtx.createOscillator();
                   const gain = currentCtx.createGain();
+                  const filter = currentCtx.createBiquadFilter();
                   const freq = notes[Math.floor(Math.random() * notes.length)];
 
-                  osc.type = 'sine';
+                  // Soft triangle wave for gentle acoustic piano/guitar tone
+                  osc.type = 'triangle';
                   osc.frequency.setValueAtTime(freq, currentCtx.currentTime);
-                  gain.gain.setValueAtTime(0, currentCtx.currentTime);
-                  gain.gain.linearRampToValueAtTime(0.18, currentCtx.currentTime + 0.5);
-                  gain.gain.linearRampToValueAtTime(0, currentCtx.currentTime + 3.5);
+                  
+                  filter.type = 'lowpass';
+                  filter.frequency.setValueAtTime(800, currentCtx.currentTime);
 
-                  osc.connect(gain);
+                  gain.gain.setValueAtTime(0, currentCtx.currentTime);
+                  gain.gain.linearRampToValueAtTime(0.12, currentCtx.currentTime + 0.6);
+                  gain.gain.linearRampToValueAtTime(0, currentCtx.currentTime + 3.8);
+
+                  osc.connect(filter);
+                  filter.connect(gain);
                   gain.connect(currentCtx.destination);
                   osc.start(currentCtx.currentTime);
-                  osc.stop(currentCtx.currentTime + 3.6);
+                  osc.stop(currentCtx.currentTime + 3.9);
                 } catch (err) {}
               };
 
               playNote();
-              this.intervalId = setInterval(playNote, 2400);
+              this.intervalId = setInterval(playNote, 2500);
             } catch (e) {}
           },
           stop: function() {
