@@ -830,6 +830,7 @@
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <button
                 onClick={onToggleMusic}
+                onTouchEnd={(e) => { e.preventDefault(); onToggleMusic(e); }}
                 className={`music-toggle-btn ${isMusicPlaying ? 'playing' : ''}`}
                 title={isMusicPlaying ? "Pause Bamboo Flute Ambient Music" : "Play Bamboo Flute Ambient Music"}
                 style={{
@@ -845,7 +846,8 @@
                   color: isMusicPlaying ? 'white' : '#274C38',
                   cursor: 'pointer',
                   boxShadow: isMusicPlaying ? '0 4px 14px rgba(91, 138, 114, 0.4)' : '0 2px 8px rgba(0, 0, 0, 0.05)',
-                  transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                  transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                  touchAction: 'manipulation'
                 }}
               >
                 <span>{isMusicPlaying ? "🎵" : "⏸️"}</span>
@@ -2306,11 +2308,15 @@
         <div>
           {showWelcome && <WelcomePage onEnterWebsite={() => {
             setShowWelcome(false);
+            setIsMusicPlaying(true);
+            if (fluteSynthRef.current) {
+              fluteSynthRef.current.start();
+            }
             const audioEl = document.getElementById('bg-calm-audio');
             if (audioEl) {
               audioEl.volume = 0.35;
               audioEl.loop = true;
-              audioEl.play().then(() => setIsMusicPlaying(true)).catch(() => {});
+              audioEl.play().catch(() => {});
             }
           }} />}
 
