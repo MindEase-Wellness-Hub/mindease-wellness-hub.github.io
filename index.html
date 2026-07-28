@@ -1929,16 +1929,75 @@
         return () => { clearTimeout(timer1); clearTimeout(timer2); };
       }, [currentPage]);
 
-      // UNLOCK BROWSER AUTOPLAY POLICY ON FIRST USER INTERACTION (CLICK / TOUCH)
+      // FAIL-PROOF WEB AUDIO API AMBIENT FLUTE SYNTHESIZER
+      const fluteSynthRef = useRef(null);
+      if (!fluteSynthRef.current) {
+        fluteSynthRef.current = {
+          ctx: null,
+          intervalId: null,
+          start: function() {
+            try {
+              const AudioCtx = window.AudioContext || window.webkitAudioContext;
+              if (!AudioCtx) return;
+              if (!this.ctx || this.ctx.state === 'closed') {
+                this.ctx = new AudioCtx();
+              }
+              if (this.ctx.state === 'suspended') {
+                this.ctx.resume();
+              }
+              if (this.intervalId) clearInterval(this.intervalId);
+
+              // Calming bamboo flute pentatonic notes (D4, F4, G4, A4, C5, D5)
+              const notes = [293.66, 349.23, 392.00, 440.00, 523.25, 587.33];
+              const playNote = () => {
+                if (!this.ctx || this.ctx.state === 'closed') return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                const freq = notes[Math.floor(Math.random() * notes.length)];
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.001, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.06, this.ctx.currentTime + 0.5);
+                gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 3.8);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(this.ctx.currentTime);
+                osc.stop(this.ctx.currentTime + 3.9);
+              };
+
+              playNote();
+              this.intervalId = setInterval(playNote, 2600);
+            } catch (e) {}
+          },
+          stop: function() {
+            if (this.intervalId) clearInterval(this.intervalId);
+            if (this.ctx) {
+              try { this.ctx.close(); } catch (e) {}
+              this.ctx = null;
+            }
+          }
+        };
+      }
+
+      // UNLOCK BROWSER AUTOPLAY POLICY & START AMBIENT FLUTE MUSIC ON FIRST INTERACTION
       useEffect(() => {
         const unlockAudio = () => {
           const audioEl = document.getElementById('bg-calm-audio');
-          if (audioEl && audioEl.paused) {
+          if (audioEl) {
             audioEl.volume = 0.35;
             audioEl.loop = true;
             audioEl.play().then(() => {
               setIsMusicPlaying(true);
-            }).catch(() => {});
+            }).catch(() => {
+              // Fallback to Web Audio Flute Synthesizer if external MP3 blocked
+              fluteSynthRef.current.start();
+              setIsMusicPlaying(true);
+            });
+          } else {
+            fluteSynthRef.current.start();
+            setIsMusicPlaying(true);
           }
         };
 
@@ -1951,22 +2010,30 @@
         };
       }, []);
 
-      // CALM MUSIC MUTE / UNMUTE TOGGLE WITH INFINITE LOOP RESTART
+      // CALM MUSIC MUTE / UNMUTE TOGGLE WITH DUAL FALLBACK
       const handleToggleMusic = () => {
         const audioEl = document.getElementById('bg-calm-audio');
-        if (!audioEl) return;
 
         if (isMusicPlaying) {
-          audioEl.pause();
+          if (audioEl) audioEl.pause();
+          fluteSynthRef.current.stop();
           setIsMusicPlaying(false);
         } else {
-          audioEl.volume = 0.35;
-          audioEl.loop = true;
-          audioEl.play().then(() => {
+          let started = false;
+          if (audioEl) {
+            audioEl.volume = 0.35;
+            audioEl.loop = true;
+            audioEl.play().then(() => {
+              setIsMusicPlaying(true);
+              started = true;
+            }).catch(() => {
+              fluteSynthRef.current.start();
+              setIsMusicPlaying(true);
+            });
+          } else {
+            fluteSynthRef.current.start();
             setIsMusicPlaying(true);
-          }).catch(err => {
-            console.log("Audio play initiated.");
-          });
+          }
         }
       };
 
