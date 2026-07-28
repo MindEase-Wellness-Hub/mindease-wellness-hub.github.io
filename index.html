@@ -455,6 +455,11 @@
 <body>
   <div id="root"></div>
 
+  <!-- Calming Peaceful Piano & Guitar Meditation Background Audio (Continuous Infinite Loop) -->
+  <audio id="bg-calm-audio" loop preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=meditation-peaceful-piano-112269.mp3" type="audio/mpeg" />
+  </audio>
+
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
     const WHATSAPP_NUMBER = "917082728149";
@@ -798,8 +803,17 @@
               ))}
             </div>
 
-            {/* RIGHT SIDE ACTION BUTTON */}
+            {/* RIGHT SIDE ACTION BUTTONS WITH CLEAN SINGLE MUTE/UNMUTE BUTTON */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <button
+                onClick={onToggleMusic}
+                className={`music-toggle-btn ${isMusicPlaying ? 'playing' : ''}`}
+                title={isMusicPlaying ? "Mute Relaxing Music" : "Play Relaxing Music"}
+              >
+                <span>{isMusicPlaying ? "🔊" : "🔇"}</span>
+                <span>{isMusicPlaying ? "Calm Music Playing" : "Play Music"}</span>
+              </button>
+
               <MagneticButton onClick={() => onOpenBooking('General Wellness Session')} className="btn-primary" style={{ padding: '8px 20px', fontSize: '0.85rem' }}>
                 📅 Book Session
               </MagneticButton>
@@ -1912,6 +1926,37 @@
         return () => { clearTimeout(timer1); clearTimeout(timer2); };
       }, [currentPage]);
 
+      // CALM MUSIC MUTE / UNMUTE TOGGLE WITH INFINITE LOOP RESTART
+      const handleToggleMusic = () => {
+        const audioEl = document.getElementById('bg-calm-audio');
+        if (!audioEl) return;
+
+        if (isMusicPlaying) {
+          audioEl.pause();
+          setIsMusicPlaying(false);
+        } else {
+          audioEl.volume = 0.35;
+          audioEl.loop = true;
+          audioEl.play().then(() => {
+            setIsMusicPlaying(true);
+          }).catch(err => {
+            console.log("Audio play initiated.");
+          });
+        }
+      };
+
+      // Ensure audio loops infinitely if ended event fires
+      useEffect(() => {
+        const audioEl = document.getElementById('bg-calm-audio');
+        if (!audioEl) return;
+        const handleAudioEnded = () => {
+          audioEl.currentTime = 0;
+          audioEl.play().catch(() => {});
+        };
+        audioEl.addEventListener('ended', handleAudioEnded);
+        return () => audioEl.removeEventListener('ended', handleAudioEnded);
+      }, []);
+
       // KEYBOARD ARROW NAVIGATION ONLY (◀ ArrowLeft & ArrowRight ▶)
       useEffect(() => {
         const handleKeyDown = (e) => {
@@ -2084,7 +2129,15 @@
 
       return (
         <div>
-          {showWelcome && <WelcomePage onEnterWebsite={() => setShowWelcome(false)} />}
+          {showWelcome && <WelcomePage onEnterWebsite={() => {
+            setShowWelcome(false);
+            const audioEl = document.getElementById('bg-calm-audio');
+            if (audioEl) {
+              audioEl.volume = 0.35;
+              audioEl.loop = true;
+              audioEl.play().then(() => setIsMusicPlaying(true)).catch(() => {});
+            }
+          }} />}
 
           {/* FLOATING SIDE ARROW PAGE NAVIGATION */}
           {/* HIDE LEFT ARROW ON HOME PAGE */}
