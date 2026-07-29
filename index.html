@@ -8,7 +8,7 @@
   <!-- Automatic Mobile Normal Tab Cache Bypass & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_07_29_no_ring_pulse_v2";
+      var MOBILE_VER = "mindease_v2026_07_29_no_home_autoswitch";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -2113,6 +2113,9 @@
           if (showWelcome || modal) return;
           const targetTag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
           if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTag)) return;
+          
+          // Disable automatic boundary page switching on Home page
+          if (currentPage === 'home') return;
 
           const now = Date.now();
           if (now - lastPageSwitchTimeRef.current < 600) return;
@@ -2163,7 +2166,7 @@
         };
 
         const handleTouchEnd = (e) => {
-          if (showWelcome || modal) return;
+          if (showWelcome || modal || currentPage === 'home') return;
           const targetTag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
           if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTag)) return;
 
