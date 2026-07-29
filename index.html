@@ -8,7 +8,7 @@
   <!-- Automatic Mobile Normal Tab Cache Bypass & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_07_29_v15_home_right_side_only";
+      var MOBILE_VER = "mindease_v2026_07_29_no_ring";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -354,26 +354,12 @@
     .side-nav-arrow.left-arrow { left: 16px; }
     .side-nav-arrow.right-arrow { right: 16px; }
 
-    /* BLINKING ARROW ANIMATION WHEN REACHED END OF PAGE */
-    @keyframes blinkArrow {
-      0%, 100% {
-        transform: translateY(-50%) scale(1);
-        background: #FFD700;
-        color: #274C38;
-        box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7);
-      }
-      50% {
-        transform: translateY(-50%) scale(1.35);
-        background: #5B8A72;
-        color: #FFFFFF;
-        box-shadow: 0 0 30px 12px rgba(91, 138, 114, 0.7);
-      }
-    }
-
     .side-nav-arrow.blinking-arrow {
-      animation: blinkArrow 1s infinite cubic-bezier(0.4, 0, 0.2, 1);
       opacity: 1 !important;
-      border: 2.5px solid #FFD700 !important;
+      background: #5B8A72 !important;
+      color: white !important;
+      border: 2px solid #FFFFFF !important;
+      box-shadow: 0 8px 25px rgba(91, 138, 114, 0.4) !important;
     }
 
     .whatsapp-widget {
@@ -448,94 +434,21 @@
       box-shadow: 0 4px 14px rgba(91, 138, 114, 0.35);
     }
 
-    /* --- 3D CONTAINER MORPH & DEPTH SCALE TRANSITION --- */
-    .page-morph-wrapper {
-      perspective: 1400px;
-      perspective-origin: 50% 30%;
+    /* --- CLEAN, SILKY SMOOTH FADE-SLIDE TRANSITION --- */
+    .page-container {
       min-height: 85vh;
-      width: 100%;
-      overflow: hidden;
+      animation: smoothFadeSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      will-change: opacity, transform;
     }
 
-    .page-container-morph {
-      animation: page3DDepthMorph 0.52s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      will-change: transform, opacity, filter;
-      transform-style: preserve-3d;
-    }
-
-    @keyframes page3DDepthMorph {
+    @keyframes smoothFadeSlideIn {
       0% {
         opacity: 0;
-        transform: scale(0.93) translateY(28px) rotateX(4deg);
-        filter: blur(10px) brightness(1.06);
-      }
-      60% {
-        opacity: 0.95;
-        filter: blur(2px) brightness(1.02);
+        transform: translateY(12px);
       }
       100% {
         opacity: 1;
-        transform: scale(1) translateY(0px) rotateX(0deg);
-        filter: blur(0px) brightness(1);
-      }
-    }
-
-    /* --- EXPANDING PASTEL RIPPLE WAVE & LIGHT BLOOM OVERLAY --- */
-    .ripple-wave-overlay {
-      position: fixed;
-      pointer-events: none;
-      z-index: 99999;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(142, 125, 190, 0.45) 0%, rgba(91, 138, 114, 0.35) 45%, rgba(232, 142, 125, 0.15) 75%, transparent 100%);
-      transform: translate(-50%, -50%) scale(0);
-      animation: expandPastelRipple 0.55s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
-      mix-blend-mode: multiply;
-    }
-
-    @keyframes expandPastelRipple {
-      0% {
-        width: 10px;
-        height: 10px;
-        opacity: 0.85;
-        transform: translate(-50%, -50%) scale(1);
-      }
-      100% {
-        width: 250vmax;
-        height: 250vmax;
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(1);
-      }
-    }
-
-    /* --- ULTRA-FAST CALM BREATHE IN/OUT PULSE RING OVERLAY --- */
-    .breathe-pulse-overlay {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      width: 180px;
-      height: 180px;
-      margin-top: -90px;
-      margin-left: -90px;
-      border-radius: 50%;
-      border: 3px solid rgba(91, 138, 114, 0.6);
-      box-shadow: 0 0 45px rgba(142, 125, 190, 0.4), inset 0 0 25px rgba(91, 138, 114, 0.3);
-      pointer-events: none;
-      z-index: 99998;
-      animation: calmBreathePulse 0.35s ease-out forwards;
-    }
-
-    @keyframes calmBreathePulse {
-      0% {
-        opacity: 0.9;
-        transform: scale(0.6);
-      }
-      50% {
-        opacity: 0.6;
-        transform: scale(1.3);
-      }
-      100% {
-        opacity: 0;
-        transform: scale(1.8);
+        transform: translateY(0);
       }
     }
 
@@ -2053,27 +1966,8 @@
       const prevPage = pageOrder[(currentIdx - 1 + pageOrder.length) % pageOrder.length];
       const nextPage = pageOrder[(currentIdx + 1) % pageOrder.length];
 
-      const [ripple, setRipple] = useState(null);
-      const [isBreathing, setIsBreathing] = useState(false);
-
-      const handleNavigatePage = (targetPageId, e) => {
+      const handleNavigatePage = (targetPageId) => {
         if (targetPageId === currentPage) return;
-
-        // Extract click coordinates for expanding pastel ripple wave (or default to screen center)
-        let clickX = window.innerWidth / 2;
-        let clickY = window.innerHeight / 2;
-        if (e && e.clientX && e.clientY) {
-          clickX = e.clientX;
-          clickY = e.clientY;
-        } else if (e && e.target && e.target.getBoundingClientRect) {
-          const rect = e.target.getBoundingClientRect();
-          clickX = rect.left + rect.width / 2;
-          clickY = rect.top + rect.height / 2;
-        }
-        setRipple({ x: clickX, y: clickY, id: Date.now() });
-        setIsBreathing(true);
-        setTimeout(() => setIsBreathing(false), 350);
-
         setCurrentPage(targetPageId);
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
         document.body.scrollTop = 0;
@@ -2245,8 +2139,8 @@
               handleNavigatePage(nextPage.id);
             }
           }
-          // 2-Step Scroll Up Confirmation at Page Top (Disabled on Home Page so Home page switches to the right side only)
-          else if (e.deltaY < -30 && isAtTop && currentPage !== 'home') {
+          // 2-Step Scroll Up Confirmation at Page Top
+          else if (e.deltaY < -30 && isAtTop) {
             if (topScrollCountRef.current === 0 || (now - lastBoundaryActionTimeRef.current > 3500)) {
               // 1st Scroll at top
               topScrollCountRef.current = 1;
@@ -2300,8 +2194,8 @@
               handleNavigatePage(nextPage.id);
             }
           }
-          // 2-Step Swipe Down Confirmation at Page Top (Disabled on Home Page so Home page switches to the right side only)
-          else if (deltaY < -50 && isAtTop && currentPage !== 'home') {
+          // 2-Step Swipe Down Confirmation at Page Top
+          else if (deltaY < -50 && isAtTop) {
             if (topScrollCountRef.current === 0 || (now - lastBoundaryActionTimeRef.current > 3500)) {
               topScrollCountRef.current = 1;
               lastBoundaryActionTimeRef.current = now;
@@ -2376,35 +2270,21 @@
             onToggleMusic={handleToggleMusic}
           />
 
-          {/* EXPANDING PASTEL RIPPLE WAVE & LIGHT BLOOM OVERLAY */}
-          {ripple && (
-            <div
-              key={ripple.id}
-              className="ripple-wave-overlay"
-              style={{ left: `${ripple.x}px`, top: `${ripple.y}px` }}
-            />
-          )}
-
-          {/* ULTRA-FAST CALM BREATHE IN/OUT PULSE RING OVERLAY */}
-          {isBreathing && <div className="breathe-pulse-overlay" />}
-
-          {/* PAGE ROUTER VIEWS WITH 3D DEPTH MORPH TRANSITION */}
-          <div className="page-morph-wrapper">
-            <div key={currentPage} className="page-container-morph">
-              {currentPage === 'home' && <HomePage onNavigatePage={handleNavigatePage} onOpenBooking={(name) => openBooking(name)} />}
-              {currentPage === 'offerings' && <OfferingsPage onBookSession={(name) => openBooking(name)} />}
-              {currentPage === 'activities' && <ActivitiesPage onBookSession={(name) => openBooking(name)} />}
-              {currentPage === 'experience' && <ExperiencePage onBookSession={(name) => openBooking(name)} />}
-              {currentPage === 'whoFor' && <WhoForPage onBookSession={(name) => openBooking(name)} />}
-              {currentPage === 'collaborate' && <CollaboratePage />}
-              {currentPage === 'events' && (
-                <EventsPage
-                  isModalOpen={modal}
-                  onCloseModal={(name) => { if (name) setSessionName(name); else setModal(false); }}
-                  selectedSessionName={sessionName}
-                />
-              )}
-            </div>
+          {/* PAGE ROUTER VIEWS */}
+          <div key={currentPage}>
+            {currentPage === 'home' && <HomePage onNavigatePage={handleNavigatePage} onOpenBooking={(name) => openBooking(name)} />}
+            {currentPage === 'offerings' && <OfferingsPage onBookSession={(name) => openBooking(name)} />}
+            {currentPage === 'activities' && <ActivitiesPage onBookSession={(name) => openBooking(name)} />}
+            {currentPage === 'experience' && <ExperiencePage onBookSession={(name) => openBooking(name)} />}
+            {currentPage === 'whoFor' && <WhoForPage onBookSession={(name) => openBooking(name)} />}
+            {currentPage === 'collaborate' && <CollaboratePage />}
+            {currentPage === 'events' && (
+              <EventsPage
+                isModalOpen={modal}
+                onCloseModal={(name) => { if (name) setSessionName(name); else setModal(false); }}
+                selectedSessionName={sessionName}
+              />
+            )}
           </div>
 
           {/* GLOBAL BOOKING MODAL */}
