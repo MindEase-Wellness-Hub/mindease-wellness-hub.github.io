@@ -8,7 +8,7 @@
   <!-- Automatic Mobile Normal Tab Cache Bypass & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_07_29_no_boundary_autoswitch";
+      var MOBILE_VER = "mindease_v2026_07_29_blinking_arrows_restored";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -354,12 +354,26 @@
     .side-nav-arrow.left-arrow { left: 16px; }
     .side-nav-arrow.right-arrow { right: 16px; }
 
+    /* BLINKING/PULSING ARROW NOTIFICATION AT PAGE BOUNDARIES */
+    @keyframes blinkNavArrow {
+      0%, 100% {
+        transform: translateY(-50%) scale(1);
+        background: #5B8A72;
+        color: #FFFFFF;
+        box-shadow: 0 4px 14px rgba(91, 138, 114, 0.4);
+      }
+      50% {
+        transform: translateY(-50%) scale(1.3);
+        background: #FFD700;
+        color: #274C38;
+        box-shadow: 0 0 25px 10px rgba(255, 215, 0, 0.8);
+      }
+    }
+
     .side-nav-arrow.blinking-arrow {
+      animation: blinkNavArrow 0.9s infinite cubic-bezier(0.4, 0, 0.2, 1) !important;
       opacity: 1 !important;
-      background: #5B8A72 !important;
-      color: white !important;
-      border: 2px solid #FFFFFF !important;
-      box-shadow: 0 8px 25px rgba(91, 138, 114, 0.4) !important;
+      border: 2.5px solid #FFD700 !important;
     }
 
     .whatsapp-widget {
@@ -1961,13 +1975,25 @@
       const [isMusicPlaying, setIsMusicPlaying] = useState(false);
       const [modal, setModal] = useState(false);
       const [sessionName, setSessionName] = useState(null);
+      const [isAtEnd, setIsAtEnd] = useState(false);
+      const [isAtTopBoundary, setIsAtTopBoundary] = useState(false);
 
       const currentIdx = pageOrder.findIndex(p => p.id === currentPage);
       const prevPage = pageOrder[(currentIdx - 1 + pageOrder.length) % pageOrder.length];
       const nextPage = pageOrder[(currentIdx + 1) % pageOrder.length];
 
+      const bottomScrollCountRef = useRef(0);
+      const topScrollCountRef = useRef(0);
+      const lastBoundaryActionTimeRef = useRef(0);
+      const lastPageSwitchTimeRef = useRef(0);
+      const touchStartYRef = useRef(0);
+
       const handleNavigatePage = (targetPageId) => {
         if (targetPageId === currentPage) return;
+        bottomScrollCountRef.current = 0;
+        topScrollCountRef.current = 0;
+        setIsAtEnd(false);
+        setIsAtTopBoundary(false);
         setCurrentPage(targetPageId);
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
         document.body.scrollTop = 0;
@@ -2054,55 +2080,125 @@
         return () => audioEl.removeEventListener('ended', handleAudioEnded);
       }, []);
 
-      // KEYBOARD ARROW NAVIGATION ONLY (◀ ArrowLeft & ArrowRight ▶)
+      // SCROLL-DRIVEN & TOUCH SWIPE PAGE SWITCHING WITH 2-STEP CONFIRMATION & BLINKING ARROWS
       useEffect(() => {
-        const handleKeyDown = (e) => {
+        const handleWheel = (e) => {
           if (showWelcome || modal) return;
           const targetTag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
           if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTag)) return;
 
-          if (e.key === 'ArrowRight') {
-            e.preventDefault();
-            handleNavigatePage(nextPage.id);
-          } else if (e.key === 'ArrowLeft') {
-            e.preventDefault();
-            handleNavigatePage(prevPage.id);
-          }
-        };
+          const now = Date.now();
+          if (now - lastPageSwitchTimeRef.current < 600) return;
 
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-      }, [currentPage, showWelcome, modal, nextPage.id, prevPage.id]);
-
-      // TRACK SCROLL POSITION AND 2-STEP CONFIRMATION AT PAGE BOUNDARIES
-      const [isAtEnd, setIsAtEnd] = useState(false);
-      const bottomScrollCountRef = useRef(0);
-      const topScrollCountRef = useRef(0);
-      const lastBoundaryActionTimeRef = useRef(0);
-
-      useEffect(() => {
-        const checkScrollPosition = () => {
           const scrollY = window.scrollY;
           const windowHeight = window.innerHeight;
           const fullHeight = document.documentElement.scrollHeight;
           const isAtBottom = scrollY + windowHeight >= fullHeight - 50;
+          const isAtTop = scrollY <= 15;
 
-          if (isAtBottom) {
-            setIsAtEnd(true);
-          } else {
+          // 2-Step Scroll Down Confirmation at Page Bottom -> Right Arrow Blinks
+          if (e.deltaY > 20 && isAtBottom) {
+            if (bottomScrollCountRef.current === 0 || (now - lastBoundaryActionTimeRef.current > 3500)) {
+              bottomScrollCountRef.current = 1;
+              setIsAtEnd(true);
+              lastBoundaryActionTimeRef.current = now;
+              lastPageSwitchTimeRef.current = now;
+            } else {
+              bottomScrollCountRef.current = 0;
+              setIsAtEnd(false);
+              lastPageSwitchTimeRef.current = now;
+              handleNavigatePage(nextPage.id);
+            }
+          } else if (!isAtBottom) {
             setIsAtEnd(false);
             bottomScrollCountRef.current = 0;
           }
 
-          if (scrollY > 20) {
+          // 2-Step Scroll Up Confirmation at Page Top -> Left Arrow Blinks
+          if (e.deltaY < -20 && isAtTop && currentPage !== 'home') {
+            if (topScrollCountRef.current === 0 || (now - lastBoundaryActionTimeRef.current > 3500)) {
+              topScrollCountRef.current = 1;
+              setIsAtTopBoundary(true);
+              lastBoundaryActionTimeRef.current = now;
+              lastPageSwitchTimeRef.current = now;
+            } else {
+              topScrollCountRef.current = 0;
+              setIsAtTopBoundary(false);
+              lastPageSwitchTimeRef.current = now;
+              handleNavigatePage(prevPage.id);
+            }
+          } else if (!isAtTop) {
+            setIsAtTopBoundary(false);
             topScrollCountRef.current = 0;
           }
         };
 
-        checkScrollPosition();
-        window.addEventListener('scroll', checkScrollPosition, { passive: true });
-        return () => window.removeEventListener('scroll', checkScrollPosition);
-      }, [currentPage]);
+        // TOUCH SWIPE 2-STEP CONFIRMATION FOR MOBILE DEVICES
+        const handleTouchStart = (e) => {
+          if (e.touches && e.touches[0]) {
+            touchStartYRef.current = e.touches[0].clientY;
+          }
+        };
+
+        const handleTouchEnd = (e) => {
+          if (showWelcome || modal) return;
+          const targetTag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
+          if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTag)) return;
+
+          const now = Date.now();
+          if (now - lastPageSwitchTimeRef.current < 600) return;
+
+          if (!e.changedTouches || !e.changedTouches[0]) return;
+          const touchEndY = e.changedTouches[0].clientY;
+          const deltaY = touchStartYRef.current - touchEndY; // Positive = Swipe Up / Scroll Down
+
+          const scrollY = window.scrollY;
+          const windowHeight = window.innerHeight;
+          const fullHeight = document.documentElement.scrollHeight;
+          const isAtBottom = scrollY + windowHeight >= fullHeight - 50;
+          const isAtTop = scrollY <= 15;
+
+          // 2-Step Swipe Up Confirmation at Page Bottom
+          if (deltaY > 40 && isAtBottom) {
+            if (bottomScrollCountRef.current === 0 || (now - lastBoundaryActionTimeRef.current > 3500)) {
+              bottomScrollCountRef.current = 1;
+              setIsAtEnd(true);
+              lastBoundaryActionTimeRef.current = now;
+              lastPageSwitchTimeRef.current = now;
+            } else {
+              bottomScrollCountRef.current = 0;
+              setIsAtEnd(false);
+              lastPageSwitchTimeRef.current = now;
+              handleNavigatePage(nextPage.id);
+            }
+          }
+
+          // 2-Step Swipe Down Confirmation at Page Top
+          if (deltaY < -40 && isAtTop && currentPage !== 'home') {
+            if (topScrollCountRef.current === 0 || (now - lastBoundaryActionTimeRef.current > 3500)) {
+              topScrollCountRef.current = 1;
+              setIsAtTopBoundary(true);
+              lastBoundaryActionTimeRef.current = now;
+              lastPageSwitchTimeRef.current = now;
+            } else {
+              topScrollCountRef.current = 0;
+              setIsAtTopBoundary(false);
+              lastPageSwitchTimeRef.current = now;
+              handleNavigatePage(prevPage.id);
+            }
+          }
+        };
+
+        window.addEventListener('wheel', handleWheel, { passive: true });
+        window.addEventListener('touchstart', handleTouchStart, { passive: true });
+        window.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+        return () => {
+          window.removeEventListener('wheel', handleWheel);
+          window.removeEventListener('touchstart', handleTouchStart);
+          window.removeEventListener('touchend', handleTouchEnd);
+        };
+      }, [currentPage, showWelcome, modal, nextPage.id, prevPage.id]);
 
       const openBooking = (name) => {
         setSessionName(name || 'Mindfulness & Stress Management');
@@ -2114,9 +2210,6 @@
           {showWelcome && <WelcomePage onEnterWebsite={() => {
             setShowWelcome(false);
             setIsMusicPlaying(true);
-            if (fluteSynthRef.current) {
-              fluteSynthRef.current.start();
-            }
             const audioEl = document.getElementById('bg-calm-audio');
             if (audioEl) {
               audioEl.volume = 0.35;
@@ -2125,12 +2218,12 @@
             }
           }} />}
 
-          {/* FLOATING SIDE ARROW PAGE NAVIGATION (STATIC, CLEAN & NO RING PULSE) */}
+          {/* FLOATING SIDE ARROW PAGE NAVIGATION (WITH BOUNDARY BLINKING NOTIFICATIONS) */}
           {/* HIDE LEFT ARROW ON HOME PAGE */}
           {currentPage !== 'home' && (
             <button
               onClick={() => handleNavigatePage(prevPage.id)}
-              className="side-nav-arrow left-arrow"
+              className={`side-nav-arrow left-arrow ${isAtTopBoundary ? 'blinking-arrow' : ''}`}
               title={`Previous Page: ${prevPage.title}`}
             >
               ◀
@@ -2139,7 +2232,7 @@
 
           <button
             onClick={() => handleNavigatePage(nextPage.id)}
-            className="side-nav-arrow right-arrow"
+            className={`side-nav-arrow right-arrow ${isAtEnd ? 'blinking-arrow' : ''}`}
             title={`Next Page: ${nextPage.title}`}
           >
             ▶
