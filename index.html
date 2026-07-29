@@ -8,7 +8,7 @@
   <!-- Automatic Mobile Normal Tab Cache Bypass & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_07_29_keyboard_capture_fix_v6";
+      var MOBILE_VER = "mindease_v2026_07_29_keyboard_multikey_fix";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -2095,32 +2095,47 @@
         return () => audioEl.removeEventListener('ended', handleAudioEnded);
       }, []);
 
-      // KEYBOARD ARROW NAVIGATION (ArrowRight ▶ & ArrowLeft ◀) WITH FULL CROSS-BROWSER CAPTURE
+      // KEYBOARD ARROW & DIRECT KEY NAVIGATION (ArrowRight ▶ / 'd' / 'n' & ArrowLeft ◀ / 'a' / 'p')
       useEffect(() => {
         const handleKeyDown = (e) => {
           if (showWelcome || modal) return;
           const targetTag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
           if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTag)) return;
 
-          const isRight = e.key === 'ArrowRight' || e.code === 'ArrowRight' || e.keyCode === 39;
-          const isLeft = e.key === 'ArrowLeft' || e.code === 'ArrowLeft' || e.keyCode === 37;
+          const key = (e.key || '').toLowerCase();
+          const code = (e.code || '').toLowerCase();
+          const keyCode = e.keyCode;
+
+          const isRight = (
+            key === 'arrowright' || code === 'arrowright' || keyCode === 39 ||
+            key === 'd' || code === 'keyd' ||
+            key === 'n' || code === 'keyn'
+          );
+
+          const isLeft = (
+            key === 'arrowleft' || code === 'arrowleft' || keyCode === 37 ||
+            key === 'a' || code === 'keya' ||
+            key === 'p' || code === 'keyp'
+          );
 
           if (isRight) {
             e.preventDefault();
+            e.stopPropagation();
             handleNavigatePage(nextPage.id);
           } else if (isLeft) {
             e.preventDefault();
+            e.stopPropagation();
             if (currentPage !== 'home') {
               handleNavigatePage(prevPage.id);
             }
           }
         };
 
-        document.addEventListener('keydown', handleKeyDown, true);
         window.addEventListener('keydown', handleKeyDown, true);
+        document.addEventListener('keydown', handleKeyDown, true);
         return () => {
-          document.removeEventListener('keydown', handleKeyDown, true);
           window.removeEventListener('keydown', handleKeyDown, true);
+          document.removeEventListener('keydown', handleKeyDown, true);
         };
       }, [currentPage, showWelcome, modal, nextPage.id, prevPage.id]);
 
