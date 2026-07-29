@@ -8,7 +8,7 @@
   <!-- Automatic Mobile Normal Tab Cache Bypass & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_07_29_no_home_autoswitch";
+      var MOBILE_VER = "mindease_v2026_07_29_no_boundary_autoswitch";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -2103,124 +2103,6 @@
         window.addEventListener('scroll', checkScrollPosition, { passive: true });
         return () => window.removeEventListener('scroll', checkScrollPosition);
       }, [currentPage]);
-
-      // SCROLL-DRIVEN & TOUCH SWIPE PAGE SWITCHING WITH 2-STEP CONFIRMATION
-      const lastPageSwitchTimeRef = useRef(0);
-      const touchStartYRef = useRef(0);
-
-      useEffect(() => {
-        const handleWheel = (e) => {
-          if (showWelcome || modal) return;
-          const targetTag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
-          if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTag)) return;
-          
-          // Disable automatic boundary page switching on Home page
-          if (currentPage === 'home') return;
-
-          const now = Date.now();
-          if (now - lastPageSwitchTimeRef.current < 600) return;
-
-          const scrollY = window.scrollY;
-          const windowHeight = window.innerHeight;
-          const fullHeight = document.documentElement.scrollHeight;
-          const isAtBottom = scrollY + windowHeight >= fullHeight - 60;
-          const isAtTop = scrollY <= 15;
-
-          // 2-Step Scroll Down Confirmation at Page Bottom
-          if (e.deltaY > 30 && isAtBottom) {
-            if (bottomScrollCountRef.current === 0 || (now - lastBoundaryActionTimeRef.current > 3500)) {
-              // 1st Scroll at bottom -> Activate Blinking Arrow notification
-              bottomScrollCountRef.current = 1;
-              setIsAtEnd(true);
-              lastBoundaryActionTimeRef.current = now;
-              lastPageSwitchTimeRef.current = now;
-            } else {
-              // 2nd Scroll at bottom -> Navigate to Next Page!
-              bottomScrollCountRef.current = 0;
-              setIsAtEnd(false);
-              lastPageSwitchTimeRef.current = now;
-              handleNavigatePage(nextPage.id);
-            }
-          }
-          // 2-Step Scroll Up Confirmation at Page Top
-          else if (e.deltaY < -30 && isAtTop) {
-            if (topScrollCountRef.current === 0 || (now - lastBoundaryActionTimeRef.current > 3500)) {
-              // 1st Scroll at top
-              topScrollCountRef.current = 1;
-              lastBoundaryActionTimeRef.current = now;
-              lastPageSwitchTimeRef.current = now;
-            } else {
-              // 2nd Scroll at top -> Navigate to Prev Page!
-              topScrollCountRef.current = 0;
-              lastPageSwitchTimeRef.current = now;
-              handleNavigatePage(prevPage.id);
-            }
-          }
-        };
-
-        // TOUCH SWIPE 2-STEP CONFIRMATION FOR MOBILE DEVICES
-        const handleTouchStart = (e) => {
-          if (e.touches && e.touches[0]) {
-            touchStartYRef.current = e.touches[0].clientY;
-          }
-        };
-
-        const handleTouchEnd = (e) => {
-          if (showWelcome || modal || currentPage === 'home') return;
-          const targetTag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
-          if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTag)) return;
-
-          const now = Date.now();
-          if (now - lastPageSwitchTimeRef.current < 600) return;
-
-          if (!e.changedTouches || !e.changedTouches[0]) return;
-          const touchEndY = e.changedTouches[0].clientY;
-          const deltaY = touchStartYRef.current - touchEndY; // Positive = Swipe Up / Scroll Down
-
-          const scrollY = window.scrollY;
-          const windowHeight = window.innerHeight;
-          const fullHeight = document.documentElement.scrollHeight;
-          const isAtBottom = scrollY + windowHeight >= fullHeight - 60;
-          const isAtTop = scrollY <= 15;
-
-          // 2-Step Swipe Up Confirmation at Page Bottom
-          if (deltaY > 50 && isAtBottom) {
-            if (bottomScrollCountRef.current === 0 || (now - lastBoundaryActionTimeRef.current > 3500)) {
-              bottomScrollCountRef.current = 1;
-              setIsAtEnd(true);
-              lastBoundaryActionTimeRef.current = now;
-              lastPageSwitchTimeRef.current = now;
-            } else {
-              bottomScrollCountRef.current = 0;
-              setIsAtEnd(false);
-              lastPageSwitchTimeRef.current = now;
-              handleNavigatePage(nextPage.id);
-            }
-          }
-          // 2-Step Swipe Down Confirmation at Page Top
-          else if (deltaY < -50 && isAtTop) {
-            if (topScrollCountRef.current === 0 || (now - lastBoundaryActionTimeRef.current > 3500)) {
-              topScrollCountRef.current = 1;
-              lastBoundaryActionTimeRef.current = now;
-              lastPageSwitchTimeRef.current = now;
-            } else {
-              topScrollCountRef.current = 0;
-              lastPageSwitchTimeRef.current = now;
-              handleNavigatePage(prevPage.id);
-            }
-          }
-        };
-
-        window.addEventListener('wheel', handleWheel, { passive: true });
-        window.addEventListener('touchstart', handleTouchStart, { passive: true });
-        window.addEventListener('touchend', handleTouchEnd, { passive: true });
-
-        return () => {
-          window.removeEventListener('wheel', handleWheel);
-          window.removeEventListener('touchstart', handleTouchStart);
-          window.removeEventListener('touchend', handleTouchEnd);
-        };
-      }, [currentPage, showWelcome, modal, nextPage.id, prevPage.id]);
 
       const openBooking = (name) => {
         setSessionName(name || 'Mindfulness & Stress Management');
