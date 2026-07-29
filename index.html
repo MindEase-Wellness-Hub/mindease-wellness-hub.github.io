@@ -8,7 +8,7 @@
   <!-- Automatic Mobile Normal Tab Cache Bypass & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_07_29_keyboard_unblocked_v7";
+      var MOBILE_VER = "mindease_v2026_07_29_insta_modal_added_v8";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -574,6 +574,103 @@
       );
     }
 
+    // --- INSTAGRAM CONNECT POPUP MODAL ---
+    function InstaModal({ isOpen, onClose }) {
+      if (!isOpen) return null;
+      const INSTA_URL = "https://www.instagram.com/mind.easeee?utm_source=qr";
+
+      return (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', zIndex: 10005,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px'
+        }}>
+          <div className="glass-card" style={{
+            backgroundColor: 'white', maxWidth: '440px', width: '100%', padding: '32px 24px',
+            borderRadius: '24px', position: 'relative', textAlign: 'center',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)', border: '2px solid rgba(225, 48, 108, 0.2)'
+          }}>
+            <button
+              onClick={onClose}
+              style={{
+                position: 'absolute', top: '16px', right: '16px', background: 'rgba(0,0,0,0.05)',
+                border: 'none', width: '36px', height: '36px', borderRadius: '50%',
+                fontSize: '1.2rem', cursor: 'pointer', color: '#555', display: 'flex',
+                alignItems: 'center', justifyContent: 'center'
+              }}
+            >
+              ✕
+            </button>
+
+            {/* INSTAGRAM GRADIENT RING AROUND LOGO */}
+            <div style={{
+              width: '94px', height: '94px', margin: '0 auto 16px', borderRadius: '50%',
+              padding: '4px', background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+              boxShadow: '0 8px 25px rgba(220, 39, 67, 0.35)'
+            }}>
+              <img
+                src="logo.jpg"
+                alt="Mind Ease Logo"
+                onError={getLogo}
+                style={{
+                  width: '100%', height: '100%', borderRadius: '50%',
+                  objectFit: 'cover', border: '3px solid white'
+                }}
+              />
+            </div>
+
+            <h3 style={{ fontSize: '1.55rem', fontWeight: 800, color: '#274C38', marginBottom: '4px' }}>
+              Mind Ease Wellness Hub
+            </h3>
+
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+              color: 'white', padding: '4px 16px', borderRadius: '50px',
+              fontWeight: 800, fontSize: '0.95rem', marginBottom: '16px',
+              boxShadow: '0 4px 12px rgba(220, 39, 67, 0.25)'
+            }}>
+              📸 @mind.easeee
+            </div>
+
+            <p style={{ color: '#5A6E63', fontSize: '0.95rem', lineHeight: 1.5, marginBottom: '24px' }}>
+              Connect with us on Instagram for daily mental health tips, student activities, event highlights & live community updates! 🍃✨
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <a
+                href={INSTA_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={onClose}
+                className="btn-primary"
+                style={{
+                  background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+                  color: 'white', textDecoration: 'none', padding: '14px 24px', borderRadius: '50px',
+                  fontWeight: 800, fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  gap: '10px', boxShadow: '0 8px 25px rgba(220, 39, 67, 0.4)'
+                }}
+              >
+                <span>📸 Open Instagram Account</span>
+                <span>↗</span>
+              </a>
+
+              <button
+                onClick={onClose}
+                style={{
+                  background: 'transparent', border: '1.5px solid rgba(91, 138, 114, 0.3)', color: '#274C38',
+                  padding: '10px 20px', borderRadius: '50px', fontWeight: 700, fontSize: '0.9rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Continue Browsing Website
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     // --- WELCOME OVERLAY WITH PROMINENT LOGO ---
     function WelcomePage({ onEnterWebsite }) {
       return (
@@ -764,8 +861,8 @@
       );
     }
 
-    // --- PROPERLY ALIGNED NAVBAR WITH LARGER LOGO & SINGLE MUTE/UNMUTE BUTTON ---
-    function Navbar({ currentPage, onNavigatePage, onOpenBooking, onShowWelcome, isMusicPlaying, onToggleMusic }) {
+    // --- PROPERLY ALIGNED NAVBAR WITH LARGER LOGO & INSTAGRAM POPUP ---
+    function Navbar({ currentPage, onNavigatePage, onOpenBooking, onShowWelcome, isMusicPlaying, onToggleMusic, onOpenInstaModal }) {
       const navItems = [
         { id: 'home', label: '🏠 Home' },
         { id: 'offerings', label: '🌿 What We Offer' },
@@ -785,8 +882,13 @@
           padding: '10px 24px'
         }}>
           <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
-            {/* LARGER LOGO (58px × 58px) & PROPERLY ALIGNED BRAND TITLE */}
-            <a href="#" onClick={(e) => { e.preventDefault(); onNavigatePage('home'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
+            {/* LARGER LOGO CLICKABLE FOR INSTAGRAM POPUP & BRAND TITLE */}
+            <a
+              href="#"
+              onClick={(e) => { e.preventDefault(); onOpenInstaModal(); }}
+              title="Click logo to view Instagram handle @mind.easeee!"
+              style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}
+            >
               <img
                 src="logo.jpg"
                 alt="Mind Ease Logo"
@@ -798,7 +900,8 @@
                   objectFit: 'cover',
                   border: '3px solid #5B8A72',
                   boxShadow: '0 6px 18px rgba(39, 76, 56, 0.22)',
-                  transition: 'transform 0.3s ease'
+                  transition: 'transform 0.3s ease',
+                  cursor: 'pointer'
                 }}
               />
               <div>
@@ -824,8 +927,32 @@
               ))}
             </div>
 
-            {/* RIGHT SIDE ACTION BUTTONS WITH ENHANCED BAMBOO FLUTE AUDIO TOGGLE */}
+            {/* RIGHT SIDE ACTION BUTTONS WITH INSTAGRAM & CALM MUSIC TOGGLE */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <button
+                onClick={onOpenInstaModal}
+                className="nav-page-btn"
+                title="Follow Mind Ease on Instagram @mind.easeee"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 14px',
+                  borderRadius: '50px',
+                  fontWeight: 800,
+                  fontSize: '0.82rem',
+                  background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(220, 39, 67, 0.35)',
+                  transition: 'all 0.25s ease'
+                }}
+              >
+                <span>📸</span>
+                <span className="desktop-nav">Instagram</span>
+              </button>
+
               <button
                 onClick={onToggleMusic}
                 onTouchEnd={(e) => { e.preventDefault(); onToggleMusic(e); }}
@@ -1928,12 +2055,12 @@
     }
 
     // --- FOOTER ---
-    function Footer({ onNavigatePage, onShowWelcome }) {
+    function Footer({ onNavigatePage, onShowWelcome, onOpenInstaModal }) {
       return (
         <footer style={{ backgroundColor: '#22332B', color: 'white' }}>
           <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '50px 20px 30px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
             <div>
-              <div onClick={onShowWelcome} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', cursor: 'pointer' }}>
+              <div onClick={onOpenInstaModal} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', cursor: 'pointer' }} title="Click to view Instagram handle @mind.easeee">
                 <img src="logo.jpg" alt="Mind Ease" onError={getLogo} style={{ width: '36px', height: '36px', borderRadius: '50%' }} />
                 <span style={{ fontSize: '1.3rem', fontWeight: 800, color: '#FFFFFF' }}>Mind Ease</span>
               </div>
@@ -1948,8 +2075,16 @@
               </p>
             </div>
             <div>
-              <h4 style={{ color: '#FFFFFF', marginBottom: '10px' }}>CONTACT SUPPORT</h4>
-              <p style={{ color: '#A3B8AC', fontSize: '0.825rem' }}>
+              <h4 style={{ color: '#FFFFFF', marginBottom: '10px' }}>CONNECT WITH US</h4>
+              <p style={{ color: '#A3B8AC', fontSize: '0.825rem', lineHeight: 1.8 }}>
+                <a
+                  href="https://www.instagram.com/mind.easeee?utm_source=qr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: '#FFD700', fontWeight: 800, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  📸 Follow @mind.easeee on Instagram ↗
+                </a><br/>
                 💬 <strong>Direct WhatsApp Chat Support</strong><br/>
                 ✉️ Instant Support Online
               </p>
@@ -1974,6 +2109,7 @@
       const [currentPage, setCurrentPage] = useState('home');
       const [isMusicPlaying, setIsMusicPlaying] = useState(false);
       const [modal, setModal] = useState(false);
+      const [instaModal, setInstaModal] = useState(false);
       const [sessionName, setSessionName] = useState(null);
       const [isAtEnd, setIsAtEnd] = useState(false);
       const [isAtTopBoundary, setIsAtTopBoundary] = useState(false);
@@ -2319,7 +2455,11 @@
             onShowWelcome={() => setShowWelcome(true)}
             isMusicPlaying={isMusicPlaying}
             onToggleMusic={handleToggleMusic}
+            onOpenInstaModal={() => setInstaModal(true)}
           />
+
+          {/* INSTAGRAM CONNECT POPUP MODAL */}
+          <InstaModal isOpen={instaModal} onClose={() => setInstaModal(false)} />
 
           {/* PAGE ROUTER VIEWS */}
           <div key={currentPage}>
@@ -2391,7 +2531,7 @@
             </div>
           )}
 
-          <Footer onNavigatePage={handleNavigatePage} onShowWelcome={() => setShowWelcome(true)} />
+          <Footer onNavigatePage={handleNavigatePage} onShowWelcome={() => setShowWelcome(true)} onOpenInstaModal={() => setInstaModal(true)} />
           <WhatsAppChatWidget />
         </div>
       );
