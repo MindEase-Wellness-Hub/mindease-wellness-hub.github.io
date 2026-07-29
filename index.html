@@ -8,7 +8,7 @@
   <!-- Automatic Mobile Normal Tab Cache Bypass & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_07_29_right_arrow_static_top_align";
+      var MOBILE_VER = "mindease_v2026_07_29_right_blinking_left_static";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -2231,7 +2231,7 @@
           {currentPage !== 'home' && (
             <button
               onClick={() => handleNavigatePage(prevPage.id)}
-              className={`side-nav-arrow left-arrow ${isAtTopBoundary ? 'blinking-arrow' : ''}`}
+              className="side-nav-arrow left-arrow"
               title={`Previous Page: ${prevPage.title}`}
             >
               ◀
@@ -2240,7 +2240,7 @@
 
           <button
             onClick={() => handleNavigatePage(nextPage.id)}
-            className="side-nav-arrow right-arrow"
+            className={`side-nav-arrow right-arrow ${isAtEnd ? 'blinking-arrow' : ''}`}
             title={`Next Page: ${nextPage.title}`}
           >
             ▶
