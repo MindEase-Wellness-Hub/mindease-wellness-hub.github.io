@@ -8,7 +8,7 @@
   <!-- Automatic Mobile Normal Tab Cache Bypass & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_07_29_blinking_arrows_restored";
+      var MOBILE_VER = "mindease_v2026_07_29_right_arrow_static_top_align";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -1988,6 +1988,13 @@
       const lastPageSwitchTimeRef = useRef(0);
       const touchStartYRef = useRef(0);
 
+      // FORCE BROWSER TO NEVER PRESERVE SCROLL POSITION ON PAGE SWITCH
+      useEffect(() => {
+        if ('scrollRestoration' in window.history) {
+          window.history.scrollRestoration = 'manual';
+        }
+      }, []);
+
       const handleNavigatePage = (targetPageId) => {
         if (targetPageId === currentPage) return;
         bottomScrollCountRef.current = 0;
@@ -1995,7 +2002,7 @@
         setIsAtEnd(false);
         setIsAtTopBoundary(false);
         setCurrentPage(targetPageId);
-        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        window.scrollTo(0, 0);
         document.body.scrollTop = 0;
         document.documentElement.scrollTop = 0;
       };
@@ -2003,14 +2010,15 @@
       // ROBUST SCROLL TO TOP ON PAGE SWITCH (WORKS ON ALL MOBILE & DESKTOP BROWSERS)
       useEffect(() => {
         const scrollToTop = () => {
-          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+          window.scrollTo(0, 0);
           document.body.scrollTop = 0;
           document.documentElement.scrollTop = 0;
         };
         scrollToTop();
-        const timer1 = setTimeout(scrollToTop, 20);
-        const timer2 = setTimeout(scrollToTop, 100);
-        return () => { clearTimeout(timer1); clearTimeout(timer2); };
+        const timer1 = setTimeout(scrollToTop, 10);
+        const timer2 = setTimeout(scrollToTop, 50);
+        const timer3 = setTimeout(scrollToTop, 150);
+        return () => { clearTimeout(timer1); clearTimeout(timer2); clearTimeout(timer3); };
       }, [currentPage]);
 
       // UNIVERSAL BROWSER & MOBILE DEVICE AUDIO UNLOCK LISTENER (PURE ULTRA-SMOOTH STUDIO MEDITATION AUDIO)
@@ -2232,7 +2240,7 @@
 
           <button
             onClick={() => handleNavigatePage(nextPage.id)}
-            className={`side-nav-arrow right-arrow ${isAtEnd ? 'blinking-arrow' : ''}`}
+            className="side-nav-arrow right-arrow"
             title={`Next Page: ${nextPage.title}`}
           >
             ▶
