@@ -8,7 +8,7 @@
   <!-- Automatic Mobile Normal Tab Cache Bypass & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_07_29_scroll_momentum_kill_v5";
+      var MOBILE_VER = "mindease_v2026_07_29_keyboard_arrows_enabled";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -2094,6 +2094,28 @@
         audioEl.addEventListener('ended', handleAudioEnded);
         return () => audioEl.removeEventListener('ended', handleAudioEnded);
       }, []);
+
+      // KEYBOARD ARROW NAVIGATION (ArrowRight ▶ & ArrowLeft ◀)
+      useEffect(() => {
+        const handleKeyDown = (e) => {
+          if (showWelcome || modal) return;
+          const targetTag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
+          if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTag)) return;
+
+          if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            handleNavigatePage(nextPage.id);
+          } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            if (currentPage !== 'home') {
+              handleNavigatePage(prevPage.id);
+            }
+          }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+      }, [currentPage, showWelcome, modal, nextPage.id, prevPage.id]);
 
       // SCROLL-DRIVEN & TOUCH SWIPE PAGE SWITCHING WITH 2-STEP CONFIRMATION & BLINKING ARROWS
       useEffect(() => {
