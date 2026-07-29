@@ -8,7 +8,7 @@
   <!-- Automatic Mobile Normal Tab Cache Bypass & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_07_29_keyboard_arrows_enabled";
+      var MOBILE_VER = "mindease_v2026_07_29_keyboard_capture_fix_v6";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -2095,17 +2095,20 @@
         return () => audioEl.removeEventListener('ended', handleAudioEnded);
       }, []);
 
-      // KEYBOARD ARROW NAVIGATION (ArrowRight ▶ & ArrowLeft ◀)
+      // KEYBOARD ARROW NAVIGATION (ArrowRight ▶ & ArrowLeft ◀) WITH FULL CROSS-BROWSER CAPTURE
       useEffect(() => {
         const handleKeyDown = (e) => {
           if (showWelcome || modal) return;
           const targetTag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
           if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTag)) return;
 
-          if (e.key === 'ArrowRight') {
+          const isRight = e.key === 'ArrowRight' || e.code === 'ArrowRight' || e.keyCode === 39;
+          const isLeft = e.key === 'ArrowLeft' || e.code === 'ArrowLeft' || e.keyCode === 37;
+
+          if (isRight) {
             e.preventDefault();
             handleNavigatePage(nextPage.id);
-          } else if (e.key === 'ArrowLeft') {
+          } else if (isLeft) {
             e.preventDefault();
             if (currentPage !== 'home') {
               handleNavigatePage(prevPage.id);
@@ -2113,8 +2116,12 @@
           }
         };
 
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        document.addEventListener('keydown', handleKeyDown, true);
+        window.addEventListener('keydown', handleKeyDown, true);
+        return () => {
+          document.removeEventListener('keydown', handleKeyDown, true);
+          window.removeEventListener('keydown', handleKeyDown, true);
+        };
       }, [currentPage, showWelcome, modal, nextPage.id, prevPage.id]);
 
       // SCROLL-DRIVEN & TOUCH SWIPE PAGE SWITCHING WITH 2-STEP CONFIRMATION & BLINKING ARROWS
