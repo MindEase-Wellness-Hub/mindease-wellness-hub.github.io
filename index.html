@@ -8,7 +8,7 @@
   <!-- Automatic Mobile Normal Tab Cache Bypass & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_07_29_keyboard_multikey_fix";
+      var MOBILE_VER = "mindease_v2026_07_29_keyboard_unblocked_v7";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -2095,10 +2095,10 @@
         return () => audioEl.removeEventListener('ended', handleAudioEnded);
       }, []);
 
-      // KEYBOARD ARROW & DIRECT KEY NAVIGATION (ArrowRight ▶ / 'd' / 'n' & ArrowLeft ◀ / 'a' / 'p')
+      // UNSTOPPABLE KEYBOARD ARROW & DIRECT KEY NAVIGATION (WORKS EVERYWHERE ON ALL BROWSERS)
       useEffect(() => {
         const handleKeyDown = (e) => {
-          if (showWelcome || modal) return;
+          // If typing in input, ignore
           const targetTag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
           if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTag)) return;
 
@@ -2106,25 +2106,35 @@
           const code = (e.code || '').toLowerCase();
           const keyCode = e.keyCode;
 
+          // ESC key closes modal
+          if (key === 'escape' || code === 'escape' || keyCode === 27) {
+            setModal(false);
+            return;
+          }
+
           const isRight = (
             key === 'arrowright' || code === 'arrowright' || keyCode === 39 ||
             key === 'd' || code === 'keyd' ||
-            key === 'n' || code === 'keyn'
+            key === 'n' || code === 'keyn' ||
+            key === 'pagedown' || keyCode === 34
           );
 
           const isLeft = (
             key === 'arrowleft' || code === 'arrowleft' || keyCode === 37 ||
             key === 'a' || code === 'keya' ||
-            key === 'p' || code === 'keyp'
+            key === 'p' || code === 'keyp' ||
+            key === 'pageup' || keyCode === 33
           );
 
           if (isRight) {
             e.preventDefault();
             e.stopPropagation();
+            if (showWelcome) setShowWelcome(false);
             handleNavigatePage(nextPage.id);
           } else if (isLeft) {
             e.preventDefault();
             e.stopPropagation();
+            if (showWelcome) setShowWelcome(false);
             if (currentPage !== 'home') {
               handleNavigatePage(prevPage.id);
             }
@@ -2133,9 +2143,14 @@
 
         window.addEventListener('keydown', handleKeyDown, true);
         document.addEventListener('keydown', handleKeyDown, true);
+        window.onkeydown = handleKeyDown;
+        document.onkeydown = handleKeyDown;
+
         return () => {
           window.removeEventListener('keydown', handleKeyDown, true);
           document.removeEventListener('keydown', handleKeyDown, true);
+          window.onkeydown = null;
+          document.onkeydown = null;
         };
       }, [currentPage, showWelcome, modal, nextPage.id, prevPage.id]);
 
