@@ -8,7 +8,7 @@
   <!-- Automatic Mobile Normal Tab Cache Bypass & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_07_29_no_ring";
+      var MOBILE_VER = "mindease_v2026_07_29_no_ring_pulse_v2";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -2240,7 +2240,7 @@
             }
           }} />}
 
-          {/* FLOATING SIDE ARROW PAGE NAVIGATION */}
+          {/* FLOATING SIDE ARROW PAGE NAVIGATION (STATIC, CLEAN & NO RING PULSE) */}
           {/* HIDE LEFT ARROW ON HOME PAGE */}
           {currentPage !== 'home' && (
             <button
@@ -2252,10 +2252,9 @@
             </button>
           )}
 
-          {/* RIGHT ARROW BUTTON BLINKS/PULSES WHEN AT THE END OF THE PAGE */}
           <button
             onClick={() => handleNavigatePage(nextPage.id)}
-            className={`side-nav-arrow right-arrow ${isAtEnd ? 'blinking-arrow' : ''}`}
+            className="side-nav-arrow right-arrow"
             title={`Next Page: ${nextPage.title}`}
           >
             ▶
