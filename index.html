@@ -8,7 +8,7 @@
   <!-- Automatic Mobile Normal Tab Cache Bypass & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_07_29_right_blinking_left_static";
+      var MOBILE_VER = "mindease_v2026_07_29_multistage_top_scroll_fix";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -1995,6 +1995,14 @@
         }
       }, []);
 
+      const scrollToTopMulti = () => {
+        try {
+          window.scrollTo(0, 0);
+          document.body.scrollTop = 0;
+          document.documentElement.scrollTop = 0;
+        } catch (e) {}
+      };
+
       const handleNavigatePage = (targetPageId) => {
         if (targetPageId === currentPage) return;
         bottomScrollCountRef.current = 0;
@@ -2002,23 +2010,14 @@
         setIsAtEnd(false);
         setIsAtTopBoundary(false);
         setCurrentPage(targetPageId);
-        window.scrollTo(0, 0);
-        document.body.scrollTop = 0;
-        document.documentElement.scrollTop = 0;
+        scrollToTopMulti();
       };
 
-      // ROBUST SCROLL TO TOP ON PAGE SWITCH (WORKS ON ALL MOBILE & DESKTOP BROWSERS)
+      // ROBUST MULTI-STAGE SCROLL TO TOP ON PAGE SWITCH (PREVENTS ACCIDENTAL AUTO-SCROLL TO BOTTOM)
       useEffect(() => {
-        const scrollToTop = () => {
-          window.scrollTo(0, 0);
-          document.body.scrollTop = 0;
-          document.documentElement.scrollTop = 0;
-        };
-        scrollToTop();
-        const timer1 = setTimeout(scrollToTop, 10);
-        const timer2 = setTimeout(scrollToTop, 50);
-        const timer3 = setTimeout(scrollToTop, 150);
-        return () => { clearTimeout(timer1); clearTimeout(timer2); clearTimeout(timer3); };
+        scrollToTopMulti();
+        const timers = [10, 30, 80, 180, 350, 600].map(delay => setTimeout(scrollToTopMulti, delay));
+        return () => { timers.forEach(t => clearTimeout(t)); };
       }, [currentPage]);
 
       // UNIVERSAL BROWSER & MOBILE DEVICE AUDIO UNLOCK LISTENER (PURE ULTRA-SMOOTH STUDIO MEDITATION AUDIO)
