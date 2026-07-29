@@ -8,7 +8,7 @@
   <!-- Automatic Mobile Normal Tab Cache Bypass & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_07_29_multistage_top_scroll_fix";
+      var MOBILE_VER = "mindease_v2026_07_29_scroll_momentum_kill_v5";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -2009,8 +2009,16 @@
         topScrollCountRef.current = 0;
         setIsAtEnd(false);
         setIsAtTopBoundary(false);
-        setCurrentPage(targetPageId);
+
+        // KILLS ALL MOBILE TOUCH AND MOUSE WHEEL SCROLL MOMENTUM
+        document.body.style.overflow = 'hidden';
         scrollToTopMulti();
+        setCurrentPage(targetPageId);
+
+        setTimeout(() => {
+          scrollToTopMulti();
+          document.body.style.overflow = '';
+        }, 50);
       };
 
       // ROBUST MULTI-STAGE SCROLL TO TOP ON PAGE SWITCH (PREVENTS ACCIDENTAL AUTO-SCROLL TO BOTTOM)
