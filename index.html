@@ -18,7 +18,7 @@
   <!-- Automatic Normal Browser Tab Disk Cache Purge & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_08_01_scroll_video_scrubbing_v15";
+      var MOBILE_VER = "mindease_v2026_08_01_flat_video_story_v16";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -1071,12 +1071,11 @@
       );
     }
 
-    // --- SCROLL-CONTROLLED INTERACTIVE VIDEO PLAYER SECTION ("Why Mind Ease Exists") ---
+    // --- PURE SCROLL-DRIVEN VIDEO STORYTELLING SECTION (NO CARDS, NO TILT, SEAMLESS SCROLL) ---
     function InteractiveStorytellingSection({ onOpenBooking, onNavigatePage }) {
       const sectionRef = useRef(null);
       const videoRef = useRef(null);
       const [scrollProgress, setScrollProgress] = useState(0);
-      const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
       const [isVideoLoaded, setIsVideoLoaded] = useState(false);
       const [isMobile, setIsMobile] = useState(false);
 
@@ -1087,7 +1086,7 @@
         return () => window.removeEventListener('resize', checkMobile);
       }, []);
 
-      // 60fps Scroll Scrubbing Listener (Binds video.currentTime to scroll progress)
+      // 60fps Scroll Scrubbing Listener (Strictly binds video.currentTime to scroll progress without cards/tilt)
       useEffect(() => {
         let ticking = false;
         const handleScroll = () => {
@@ -1101,7 +1100,7 @@
                   const progress = Math.min(1, Math.max(0, currentScroll / totalHeight));
                   setScrollProgress(progress);
 
-                  // Update video scrubbing currentTime
+                  // Update video scrubbing currentTime directly
                   if (videoRef.current) {
                     try {
                       videoRef.current.pause();
@@ -1123,51 +1122,35 @@
         return () => window.removeEventListener('scroll', handleScroll);
       }, []);
 
-      // 3D Cursor Parallax Tilt (Max 5deg Tilt)
-      const handleMouseMove = (e) => {
-        if (!sectionRef.current || isMobile) return;
-        const rect = sectionRef.current.getBoundingClientRect();
-        const relX = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
-        const relY = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
-        setMouseOffset({ x: relX, y: relY });
-      };
-
       const handleOpenWhatsApp = () => {
         const waMsg = `Hi Mind Ease Wellness Hub! I watched your story video on the site and would like to speak directly with support.`;
         window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`, '_blank', 'noopener,noreferrer');
       };
 
-      // Max 5deg Tilt Math
-      const rotateX = mouseOffset.y * -5;
-      const rotateY = mouseOffset.x * 5;
-
       return (
         <section
           ref={sectionRef}
-          onMouseMove={handleMouseMove}
-          className="story-video-section"
           style={{
             position: 'relative',
-            marginTop: '60px',
-            borderTop: '2px dashed rgba(91, 138, 114, 0.28)',
-            height: isMobile ? 'auto' : '260vh'
+            marginTop: '50px',
+            borderTop: '2px dashed rgba(91, 138, 114, 0.25)',
+            height: isMobile ? 'auto' : '250vh'
           }}
         >
-          {/* STICKY PINNED VIDEO VIEWPORT */}
+          {/* STICKY PINNED SCROLL VIEWPORT (NO TILT, NO CARDS, SEAMLESS CANVAS) */}
           <div
             style={{
               position: isMobile ? 'relative' : 'sticky',
-              top: isMobile ? '0' : '75px',
+              top: isMobile ? '0' : '80px',
               maxWidth: '1100px',
               margin: '0 auto',
-              padding: isMobile ? '24px 14px' : '36px 20px',
-              perspective: '1000px'
+              padding: isMobile ? '20px 10px' : '30px 16px'
             }}
           >
             {/* SECTION HEADER */}
-            <div style={{ textAlign: 'center', marginBottom: '20px', position: 'relative', zIndex: 10 }}>
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
               <div className="brush-banner-purple" style={{ fontSize: '0.8rem', marginBottom: '10px' }}>
-                ✦ SCROLL-CONTROLLED STORY VIDEO 🎬
+                ✦ SCROLL-DRIVEN STORY VIDEO 🎬
               </div>
               <h2 style={{ fontSize: 'clamp(1.9rem, 4.2vw, 2.7rem)', fontWeight: 800, color: '#274C38', marginBottom: '8px' }}>
                 Why Mind Ease Exists
@@ -1179,7 +1162,7 @@
               {!isMobile && (
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginTop: '12px', backgroundColor: 'white', padding: '6px 18px', borderRadius: '50px', boxShadow: '0 4px 16px rgba(0,0,0,0.05)', border: '1.5px solid rgba(91,138,114,0.3)' }}>
                   <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#274C38' }}>
-                    📜 Scroll Video Scrubbing: {Math.round(scrollProgress * 100)}%
+                    📜 Video Scroll Progress: {Math.round(scrollProgress * 100)}%
                   </span>
                   <div style={{ width: '90px', height: '7px', backgroundColor: 'rgba(91,138,114,0.2)', borderRadius: '10px', overflow: 'hidden' }}>
                     <div style={{ width: `${Math.round(scrollProgress * 100)}%`, height: '100%', backgroundColor: '#5B8A72', transition: 'width 0.1s linear' }}></div>
@@ -1188,18 +1171,15 @@
               )}
             </div>
 
-            {/* CURSOR PARALLAX 3D TILT VIDEO CANVAS WRAPPER */}
+            {/* SEAMLESS VIDEO CONTAINER (FLAT, NO CARDS, NO TILT) */}
             <div
               style={{
                 position: 'relative',
-                borderRadius: '20px',
+                borderRadius: '24px',
                 overflow: 'hidden',
-                backgroundColor: '#22332B',
-                boxShadow: '0 20px 60px rgba(91, 138, 114, 0.18)',
-                border: '3px solid rgba(91, 138, 114, 0.35)',
-                transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
-                transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease',
-                transformStyle: 'preserve-3d'
+                backgroundColor: '#1E2D27',
+                boxShadow: '0 20px 50px rgba(0,0,0,0.12)',
+                border: '1px solid rgba(91, 138, 114, 0.3)'
               }}
             >
               {/* VIDEO PLAYER ELEMENT */}
@@ -1213,63 +1193,122 @@
                 onLoadedMetadata={() => setIsVideoLoaded(true)}
                 style={{
                   width: '100%',
-                  height: isMobile ? '300px' : '440px',
+                  height: isMobile ? '320px' : '480px',
                   objectFit: 'cover',
-                  display: 'block',
-                  borderRadius: '20px'
+                  display: 'block'
                 }}
               ></video>
 
-              {/* DYNAMIC CANVAS PREVIEW FALLBACK WHEN VIDEO SOURCE IS BUFFED / LOADING */}
+              {/* HIGH-FIDELITY ANIMATED CANVAS FALLBACK MATCHING USER SCREENSHOTS */}
               {!isVideoLoaded && (
                 <div
                   style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: `linear-gradient(135deg, rgba(39, 76, 56, 0.95) 0%, rgba(85, 68, 115, 0.95) 100%)`,
+                    position: 'relative',
+                    width: '100%',
+                    height: isMobile ? '320px' : '480px',
+                    background: scrollProgress > 0.65
+                      ? 'radial-gradient(circle, #8b8fb9 0%, #4a4e76 100%)'
+                      : (scrollProgress > 0.35
+                          ? 'radial-gradient(circle, #a3a7d1 0%, #5d618d 100%)'
+                          : 'linear-gradient(135deg, #2b3a33 0%, #1a2520 100%)'),
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
                     padding: '24px',
                     textAlign: 'center',
-                    color: 'white'
+                    color: 'white',
+                    transition: 'background 0.5s ease'
                   }}
                 >
-                  <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🎬</div>
-                  <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'white', marginBottom: '8px' }}>
-                    Mind Ease Story Video
-                  </h3>
-                  <p style={{ color: 'rgba(255,255,255,0.85)', maxWidth: '500px', fontSize: '0.92rem', marginBottom: '16px', lineHeight: 1.5 }}>
-                    Scroll down to scrub through the story of emotional overthinking to structured clarity!
-                  </p>
-                  <div style={{ fontSize: '0.8rem', fontWeight: 800, backgroundColor: 'rgba(255,255,255,0.2)', padding: '6px 16px', borderRadius: '30px' }}>
-                    {scrollProgress > 0.5 ? "✦ ACT 2: Transforming Chaos into Peace" : "✦ ACT 1: From Overwhelm to Clarity"}
-                  </div>
+                  {/* SCENARIO 1 (0% - 35%): OVERTHINKERS ILLUSTRATION WITH TANGLED THOUGHT CLOUDS */}
+                  {scrollProgress <= 0.35 && (
+                    <div style={{ animation: 'welcomePop 0.4s ease-out', maxWidth: '650px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'center', gap: '30px', marginBottom: '20px' }}>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: '2.5rem' }}>👩‍💼</div>
+                          <div style={{ fontSize: '0.75rem', color: '#A3B8AC', marginTop: '4px' }}>Working Professional</div>
+                          <div style={{ fontSize: '0.72rem', backgroundColor: 'rgba(255,255,255,0.15)', padding: '3px 8px', borderRadius: '12px', marginTop: '4px' }}>🌀 Overthinking</div>
+                        </div>
+                        <div style={{ textAlign: 'center', transform: 'scale(1.15)' }}>
+                          <div style={{ fontSize: '2.8rem' }}>🧑‍🎓</div>
+                          <div style={{ fontSize: '0.8rem', color: '#FFD700', fontWeight: 800, marginTop: '4px' }}>College Student</div>
+                          <div style={{ fontSize: '0.75rem', backgroundColor: 'rgba(220, 39, 67, 0.4)', color: 'white', padding: '4px 10px', borderRadius: '12px', marginTop: '4px', fontWeight: 700 }}>🌀 "Carrying this alone..."</div>
+                        </div>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: '2.5rem' }}>👨‍🦳</div>
+                          <div style={{ fontSize: '0.75rem', color: '#A3B8AC', marginTop: '4px' }}>Elder / Adult</div>
+                          <div style={{ fontSize: '0.72rem', backgroundColor: 'rgba(255,255,255,0.15)', padding: '3px 8px', borderRadius: '12px', marginTop: '4px' }}>🌀 Exhausted</div>
+                        </div>
+                      </div>
+                      <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'white', marginBottom: '6px' }}>
+                        "Telling the wrong person won't fix it."
+                      </h3>
+                      <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.9rem' }}>
+                        Random opinions lead to more confusion. You need real, structured mental care.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* SCENARIO 2 (35% - 65%): 3D BRAIN WITH LIGHT BEAMS */}
+                  {scrollProgress > 0.35 && scrollProgress <= 0.65 && (
+                    <div style={{ animation: 'welcomePop 0.4s ease-out', textAlign: 'center' }}>
+                      <div style={{ position: 'relative', display: 'inline-block', marginBottom: '16px' }}>
+                        <div style={{ fontSize: '5rem', filter: 'drop-shadow(0 0 25px rgba(255,255,255,0.6))', animation: 'float 3s ease-in-out infinite' }}>
+                          🧠
+                        </div>
+                        <div style={{
+                          position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                          width: '140px', height: '140px', borderRadius: '50%',
+                          background: 'radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%)',
+                          zIndex: -1
+                        }}></div>
+                      </div>
+                      <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'white', marginBottom: '6px' }}>
+                        Mind Ease Wellness Hub
+                      </h3>
+                      <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.92rem', maxWidth: '520px' }}>
+                        Shining light into mental overload with clarity, empathy, and professional guidance.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* SCENARIO 3 (65% - 100%): SPARKLING LOGO & FLOATING KEYWORDS */}
+                  {scrollProgress > 0.65 && (
+                    <div style={{ animation: 'welcomePop 0.4s ease-out', textAlign: 'center' }}>
+                      <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', flexWrap: 'wrap', marginBottom: '20px' }}>
+                        <span style={{ backgroundColor: 'rgba(255,255,255,0.25)', color: 'white', padding: '6px 16px', borderRadius: '20px', fontWeight: 800, fontSize: '0.85rem' }}>✨ Support</span>
+                        <span style={{ backgroundColor: 'rgba(255,255,255,0.25)', color: '#FFD700', padding: '6px 16px', borderRadius: '20px', fontWeight: 800, fontSize: '0.85rem' }}>⭐ Solutions</span>
+                        <span style={{ backgroundColor: 'rgba(255,255,255,0.25)', color: 'white', padding: '6px 16px', borderRadius: '20px', fontWeight: 800, fontSize: '0.85rem' }}>🎓 Professional</span>
+                      </div>
+                      <h3 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'white', marginBottom: '8px' }}>
+                        MindEase Wellness Hub
+                      </h3>
+                      <p style={{ color: '#E2E8F0', fontSize: '0.95rem', maxWidth: '540px' }}>
+                        Safe peer support circles • De-stress workshops • 1-on-1 expert guidance
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* OVERLAY GLASSMORPICAL BANNER AT END OF SCRUBBING SEQUENCE */}
+              {/* OVERLAY ACTION BAR (CLEAN, BORDERLESS) */}
               <div
                 style={{
                   position: 'absolute',
                   bottom: '16px',
                   left: '16px',
                   right: '16px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.92)',
-                  backdropFilter: 'blur(10px)',
-                  padding: '20px 24px',
-                  borderRadius: '16px',
-                  border: '1.5px solid rgba(91, 138, 114, 0.3)',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.94)',
+                  backdropFilter: 'blur(12px)',
+                  padding: '16px 20px',
+                  borderRadius: '18px',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   flexWrap: 'wrap',
-                  gap: '14px',
+                  gap: '12px',
                   zIndex: 20
                 }}
               >
@@ -1277,8 +1316,8 @@
                   <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E7DBE', letterSpacing: '1px', textTransform: 'uppercase' }}>
                     THE MIND EASE SOLUTION 🌿
                   </div>
-                  <div style={{ fontSize: '0.98rem', fontWeight: 800, color: '#274C38', marginTop: '2px' }}>
-                    Safe peer support circles • De-stress workshops • 1-on-1 expert guidance
+                  <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#274C38', marginTop: '2px' }}>
+                    Where Minds Connect & Grow
                   </div>
                 </div>
 
