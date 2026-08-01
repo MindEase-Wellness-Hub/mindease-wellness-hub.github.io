@@ -14,7 +14,7 @@
   <!-- Automatic Mobile Normal Tab Cache Bypass & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_08_01_security_hardened_v9";
+      var MOBILE_VER = "mindease_v2026_08_01_pillar_extraction_smooth_v10";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -1172,33 +1172,33 @@
         }
       }
 
-      // DRAMATIC 3D PARALLAX EXPLOSION DISPLACEMENTS (Vertical + Horizontal + 3D Tilt + RotateY)
+      // DRAMATIC & ULTRA-SMOOTH 3D PARALLAX EXPLOSION DISPLACEMENTS (Proportional for all 4 Pillars)
       const translateYs = [
-        -145 * explodeFactor,
-        -48 * explodeFactor,
-        48 * explodeFactor,
-        145 * explodeFactor
+        -210 * explodeFactor,
+        -70 * explodeFactor,
+        70 * explodeFactor,
+        210 * explodeFactor
       ];
 
       const translateXs = [
-        -24 * explodeFactor,
-        20 * explodeFactor,
-        -20 * explodeFactor,
-        24 * explodeFactor
+        -32 * explodeFactor,
+        25 * explodeFactor,
+        -25 * explodeFactor,
+        32 * explodeFactor
       ];
 
       const rotateXs = [
-        6 * explodeFactor,
-        3 * explodeFactor,
-        -3 * explodeFactor,
-        -6 * explodeFactor
+        7 * explodeFactor,
+        3.5 * explodeFactor,
+        -3.5 * explodeFactor,
+        -7 * explodeFactor
       ];
 
       const rotateYs = [
-        -4 * explodeFactor,
-        3 * explodeFactor,
-        -3 * explodeFactor,
-        4 * explodeFactor
+        -5 * explodeFactor,
+        3.5 * explodeFactor,
+        -3.5 * explodeFactor,
+        5 * explodeFactor
       ];
 
       return (
@@ -1214,7 +1214,7 @@
             <p style={{ color: '#5A6E63', maxWidth: '680px', margin: '0 auto 16px', fontSize: '0.98rem' }}>
               {isMobile
                 ? "Click or tap any layer to inspect its core mental health foundation!"
-                : "Scroll down to experience 3D assembly & disassembly with spring callout benefits!"}
+                : "Scroll down to experience ultra-smooth 3D assembly & disassembly with spring callout benefits!"}
             </p>
 
             {!isMobile && (
@@ -1232,14 +1232,14 @@
             ref={containerRef}
             style={{
               position: 'relative',
-              height: isMobile ? 'auto' : '230vh',
+              height: isMobile ? 'auto' : '250vh',
               marginBottom: '40px',
               perspective: '1200px'
             }}
           >
             <div style={{
               position: isMobile ? 'relative' : 'sticky',
-              top: isMobile ? '0' : '90px',
+              top: isMobile ? '0' : '85px',
               maxWidth: '920px',
               margin: '0 auto',
               padding: '20px 16px',
@@ -1274,9 +1274,9 @@
                         cursor: 'pointer',
                         boxShadow: isActive || explodeFactor > 0.3 ? '0 24px 55px rgba(0,0,0,0.28)' : '0 8px 24px rgba(0,0,0,0.1)',
                         marginTop: !isMobile && idx > 0 ? '-32px' : '0px',
-                        zIndex: isActive ? 30 : pillars.length - idx,
-                        transform: `translateY(${currentTY}px) translateX(${currentTX}px) rotateX(${currentRX}deg) rotateY(${currentRY}deg) ${isActive ? 'scale(1.03)' : 'scale(1)'}`,
-                        transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease',
+                        zIndex: isActive ? 40 : pillars.length - idx,
+                        transform: `translateY(${currentTY}px) translateX(${currentTX}px) rotateX(${currentRX}deg) rotateY(${currentRY}deg) ${isActive ? 'scale(1.04)' : 'scale(1)'}`,
+                        transition: 'transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s ease',
                         border: '2px solid rgba(255,255,255,0.38)',
                         willChange: 'transform'
                       }}
