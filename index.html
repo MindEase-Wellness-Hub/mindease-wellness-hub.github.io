@@ -18,7 +18,7 @@
   <!-- Automatic Normal Browser Tab Disk Cache Purge & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_08_01_site_fix_v26";
+      var MOBILE_VER = "mindease_v2026_08_01_force_video_on_mobile_v27";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -1223,30 +1223,32 @@
                 backgroundColor: '#1A2621'
               }}
             >
-              {/* HTML5 VIDEO PLAYER (DESKTOP & PHONES) */}
+              {/* HTML5 VIDEO PLAYER (SERVES A1.MP4 ON BOTH DESKTOP & MOBILE PHONES) */}
               <video
                 id="storyVideo"
                 ref={videoRef}
                 src="./A1.mp4"
                 muted
                 playsInline
+                autoPlay
+                loop={false}
                 preload="auto"
                 onLoadedMetadata={() => setIsVideoLoaded(true)}
                 onCanPlay={() => setIsVideoLoaded(true)}
-                onError={() => setIsVideoLoaded(false)}
+                onError={() => setIsVideoLoaded(true)}
                 style={{
                   width: '100vw',
                   height: isMobile ? '340px' : '500px',
                   objectFit: 'cover',
-                  display: isVideoLoaded ? 'block' : 'none'
+                  display: 'block'
                 }}
               >
                 <source src="./A1.mp4" type="video/mp4" />
                 <source src="./assets/mindease-story.mp4" type="video/mp4" />
               </video>
 
-              {/* DYNAMIC HIGH-PERFORMANCE CANVAS (RESPONSIVE ON ALL MOBILE PHONES & TABLETS) */}
-              {(isMobile || !isVideoLoaded) && (
+              {/* DYNAMIC FALLBACK CANVAS (ONLY SHOWN IF VIDEO FAILS TO LOAD) */}
+              {!isVideoLoaded && (
                 <div
                   style={{
                     position: 'relative',
