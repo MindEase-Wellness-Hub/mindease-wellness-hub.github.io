@@ -18,7 +18,7 @@
   <!-- Automatic Normal Browser Tab Disk Cache Purge & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_08_01_full_width_both_sides_pc_phone_v25";
+      var MOBILE_VER = "mindease_v2026_08_01_site_fix_v26";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -1151,6 +1151,7 @@
         window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`, '_blank', 'noopener,noreferrer');
       };
 
+      const effectiveProgress = scrollProgress;
       const mouseXOffset = mousePos.x * 25;
       const mouseYOffset = mousePos.y * 18;
       const lightBeamAngle = mousePos.x * 20;
