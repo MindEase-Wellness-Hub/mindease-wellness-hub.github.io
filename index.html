@@ -18,7 +18,7 @@
   <!-- Automatic Normal Browser Tab Disk Cache Purge & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_08_01_full_width_both_sides_v20";
+      var MOBILE_VER = "mindease_v2026_08_01_scroll_locked_story_v21";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -1154,21 +1154,21 @@
             margin: '50px calc(-50vw + 50%) 40px',
             borderTop: '2px dashed rgba(91, 138, 114, 0.22)',
             borderBottom: '2px dashed rgba(91, 138, 114, 0.22)',
-            height: isMobile ? 'auto' : '260vh',
-            overflow: 'hidden'
+            height: isMobile ? 'auto' : '300vh'
           }}
         >
-          {/* STICKY PINNED SCROLL VIEWPORT (EXPANDS TO BOTH SIDES FULL WIDTH) */}
+          {/* STICKY LOCKED VIEWPORT CONTAINER (PAUSES PAGE SCROLL UNTIL STORY COMPLETES) */}
           <div
             ref={canvasContainerRef}
             onMouseMove={handleMouseMove}
             style={{
               position: isMobile ? 'relative' : 'sticky',
-              top: isMobile ? '0' : '75px',
+              top: isMobile ? '0' : '65px',
               width: '100%',
               maxWidth: '100%',
               margin: '0 auto',
-              padding: isMobile ? '16px 0' : '24px 0'
+              padding: isMobile ? '16px 0' : '20px 0',
+              zIndex: 30
             }}
           >
             {/* HEADER */}
