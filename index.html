@@ -18,7 +18,7 @@
   <!-- Automatic Normal Browser Tab Disk Cache Purge & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_08_01_syntax_fix_v31";
+      var MOBILE_VER = "mindease_v2026_08_01_jsx_structure_fixed_v32";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -1206,6 +1206,7 @@
                 <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#274C38' }}>
                   📜 Story Progress: {Math.round(scrollProgress * 100)}%
                 </span>
+                <div style={{ width: '85px', height: '6px', backgroundColor: 'rgba(91,138,114,0.2)', borderRadius: '10px', overflow: 'hidden' }}>
                   <div style={{ width: `${Math.round(scrollProgress * 100)}%`, height: '100%', backgroundColor: '#5B8A72', transition: 'width 0.1s linear' }}></div>
                 </div>
               </div>
