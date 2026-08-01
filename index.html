@@ -18,7 +18,7 @@
   <!-- Automatic Normal Browser Tab Disk Cache Purge & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_08_01_end_logo_reveal_v30";
+      var MOBILE_VER = "mindease_v2026_08_01_syntax_fix_v31";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -1385,6 +1385,10 @@
                         Safe peer support circles • De-stress workshops • 1-on-1 expert guidance
                       </p>
                     </div>
+                  )}
+                </div>
+              )}
+
               {/* END-OF-STORY SPARKLING LOGO REVEAL OVERLAY (APPEARS WHEN VIDEO COMPLETES / SCROLL >= 82%) */}
               {scrollProgress >= 0.82 && (
                 <div
