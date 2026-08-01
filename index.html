@@ -18,7 +18,7 @@
   <!-- Automatic Normal Browser Tab Disk Cache Purge & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_08_01_force_video_on_mobile_v27";
+      var MOBILE_VER = "mindease_v2026_08_01_cta_after_video_v28";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -1390,40 +1390,44 @@
                 </div>
               )}
 
-              {/* OVERLAY ACTION BAR (CLEAN, BORDERLESS) */}
+              {/* OVERLAY ACTION BAR - ONLY APPEARS AFTER THE VIDEO STREAMS/SCRUBS NEAR COMPLETION (>= 75%) */}
               <div
                 style={{
                   position: 'absolute',
-                  bottom: '16px',
-                  left: '16px',
-                  right: '16px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.94)',
+                  bottom: isMobile ? '10px' : '16px',
+                  left: isMobile ? '10px' : '16px',
+                  right: isMobile ? '10px' : '16px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.96)',
                   backdropFilter: 'blur(12px)',
-                  padding: '16px 22px',
+                  padding: isMobile ? '12px 14px' : '16px 22px',
                   borderRadius: '20px',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.18)',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.22)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   flexWrap: 'wrap',
-                  gap: '12px',
-                  zIndex: 20
+                  gap: '10px',
+                  zIndex: 20,
+                  opacity: scrollProgress >= 0.75 ? 1 : 0,
+                  pointerEvents: scrollProgress >= 0.75 ? 'auto' : 'none',
+                  transform: scrollProgress >= 0.75 ? 'translateY(0)' : 'translateY(25px)',
+                  transition: 'opacity 0.4s ease, transform 0.4s ease'
                 }}
               >
                 <div>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E7DBE', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                  <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#8E7DBE', letterSpacing: '1px', textTransform: 'uppercase' }}>
                     THE MIND EASE SOLUTION 🌿
                   </div>
-                  <div style={{ fontSize: '0.94rem', fontWeight: 800, color: '#274C38', marginTop: '2px' }}>
+                  <div style={{ fontSize: isMobile ? '0.88rem' : '0.94rem', fontWeight: 800, color: '#274C38', marginTop: '2px' }}>
                     Where Minds Connect & Grow
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', width: isMobile ? '100%' : 'auto' }}>
                   <MagneticButton
                     onClick={() => onOpenBooking('Confidential Video Storytelling Session')}
                     className="btn-primary"
-                    style={{ padding: '9px 22px', fontSize: '0.86rem' }}
+                    style={{ padding: isMobile ? '8px 14px' : '9px 22px', fontSize: isMobile ? '0.78rem' : '0.86rem', flex: isMobile ? 1 : 'none' }}
                   >
                     🎟️ Book Your Confidential Session
                   </MagneticButton>
@@ -1431,9 +1435,9 @@
                   <MagneticButton
                     onClick={handleOpenWhatsApp}
                     className="btn-secondary"
-                    style={{ padding: '9px 22px', fontSize: '0.86rem', borderColor: '#25D366', color: '#274C38' }}
+                    style={{ padding: isMobile ? '8px 12px' : '9px 22px', fontSize: isMobile ? '0.78rem' : '0.86rem', borderColor: '#25D366', color: '#274C38' }}
                   >
-                    💬 Speak With Us Directly
+                    💬 Speak With Us
                   </MagneticButton>
                 </div>
               </div>
