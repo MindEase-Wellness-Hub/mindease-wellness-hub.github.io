@@ -18,7 +18,7 @@
   <!-- Automatic Normal Browser Tab Disk Cache Purge & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_08_01_jsx_structure_fixed_v32";
+      var MOBILE_VER = "mindease_v2026_08_01_removed_second_action_bar_v33";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -1474,61 +1474,6 @@
                   </div>
                 </div>
               )}
-            </div>
-
-            {/* ACTION BAR - PLACED DIRECTLY BELOW & AFTER THE VIDEO CONTAINER (NEVER OVERLAPS VIDEO) */}
-            <div
-              style={{
-                width: '100vw',
-                maxWidth: '100vw',
-                marginTop: '16px',
-                padding: '0 20px',
-                boxSizing: 'border-box'
-              }}
-            >
-              <div
-                style={{
-                  maxWidth: '1120px',
-                  margin: '0 auto',
-                  backgroundColor: 'white',
-                  padding: isMobile ? '14px 16px' : '16px 24px',
-                  borderRadius: '20px',
-                  boxShadow: '0 8px 30px rgba(39, 76, 56, 0.12)',
-                  border: '1.5px solid rgba(91, 138, 114, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justify: 'space-between',
-                  flexWrap: 'wrap',
-                  gap: '12px'
-                }}
-              >
-                <div>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E7DBE', letterSpacing: '1px', textTransform: 'uppercase' }}>
-                    THE MIND EASE SOLUTION 🌿
-                  </div>
-                  <div style={{ fontSize: isMobile ? '0.9rem' : '0.98rem', fontWeight: 800, color: '#274C38', marginTop: '2px' }}>
-                    Where Minds Connect & Grow
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', width: isMobile ? '100%' : 'auto' }}>
-                  <MagneticButton
-                    onClick={() => onOpenBooking('Confidential Video Storytelling Session')}
-                    className="btn-primary"
-                    style={{ padding: isMobile ? '10px 16px' : '10px 24px', fontSize: isMobile ? '0.82rem' : '0.9rem', flex: isMobile ? 1 : 'none' }}
-                  >
-                    🎟️ Book Your Confidential Session
-                  </MagneticButton>
-
-                  <MagneticButton
-                    onClick={handleOpenWhatsApp}
-                    className="btn-secondary"
-                    style={{ padding: isMobile ? '10px 16px' : '10px 24px', fontSize: isMobile ? '0.82rem' : '0.9rem', borderColor: '#25D366', color: '#274C38' }}
-                  >
-                    💬 Speak With Us
-                  </MagneticButton>
-                </div>
-              </div>
             </div>
           </div>
         </section>
