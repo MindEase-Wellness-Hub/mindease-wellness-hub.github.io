@@ -18,7 +18,7 @@
   <!-- Automatic Normal Browser Tab Disk Cache Purge & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_08_01_graphic_mouse_scroll_v18";
+      var MOBILE_VER = "mindease_v2026_08_01_a1_video_story_v19";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -1198,15 +1198,16 @@
                 backgroundColor: '#1A2621'
               }}
             >
-              {/* HTML5 VIDEO PLAYER (IF ASSET IS LOADED) */}
+              {/* HTML5 VIDEO PLAYER USING DESKTOP VIDEO A1.mp4 */}
               <video
                 id="storyVideo"
                 ref={videoRef}
-                src="./assets/mindease-story.mp4"
+                src="./A1.mp4"
                 muted
                 playsInline
                 preload="auto"
                 onLoadedMetadata={() => setIsVideoLoaded(true)}
+                onCanPlay={() => setIsVideoLoaded(true)}
                 onError={() => setIsVideoLoaded(false)}
                 style={{
                   width: '100%',
@@ -1214,7 +1215,10 @@
                   objectFit: 'cover',
                   display: isVideoLoaded ? 'block' : 'none'
                 }}
-              ></video>
+              >
+                <source src="./A1.mp4" type="video/mp4" />
+                <source src="./assets/mindease-story.mp4" type="video/mp4" />
+              </video>
 
               {/* DYNAMIC GRAPHIC CANVAS (SCROLL & MOUSE RESPONSIVE - MATCHES USER SCREENSHOTS EXACTLY) */}
               {!isVideoLoaded && (
