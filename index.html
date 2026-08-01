@@ -18,7 +18,7 @@
   <!-- Automatic Normal Browser Tab Disk Cache Purge & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_08_01_flat_video_story_v16";
+      var MOBILE_VER = "mindease_v2026_08_01_fix_blank_story_v17";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -1171,7 +1171,7 @@
               )}
             </div>
 
-            {/* SEAMLESS VIDEO CONTAINER (FLAT, NO CARDS, NO TILT) */}
+            {/* SEAMLESS VIDEO / STORY CANVAS CONTAINER (FLAT, NO CARDS, NO TILT) */}
             <div
               style={{
                 position: 'relative',
@@ -1182,7 +1182,7 @@
                 border: '1px solid rgba(91, 138, 114, 0.3)'
               }}
             >
-              {/* VIDEO PLAYER ELEMENT */}
+              {/* VIDEO PLAYER ELEMENT (ONLY SHOWS WHEN SUCCESSFULLY LOADED) */}
               <video
                 id="storyVideo"
                 ref={videoRef}
@@ -1191,15 +1191,16 @@
                 playsInline
                 preload="auto"
                 onLoadedMetadata={() => setIsVideoLoaded(true)}
+                onError={() => setIsVideoLoaded(false)}
                 style={{
                   width: '100%',
                   height: isMobile ? '320px' : '480px',
                   objectFit: 'cover',
-                  display: 'block'
+                  display: isVideoLoaded ? 'block' : 'none'
                 }}
               ></video>
 
-              {/* HIGH-FIDELITY ANIMATED CANVAS FALLBACK MATCHING USER SCREENSHOTS */}
+              {/* HIGH-FIDELITY ANIMATED CANVAS MATCHING USER SCREENSHOTS (SHOWN UNTIL VIDEO IS FULLY READY) */}
               {!isVideoLoaded && (
                 <div
                   style={{
@@ -1207,9 +1208,9 @@
                     width: '100%',
                     height: isMobile ? '320px' : '480px',
                     background: scrollProgress > 0.65
-                      ? 'radial-gradient(circle, #8b8fb9 0%, #4a4e76 100%)'
+                      ? 'radial-gradient(circle at center, #787cae 0%, #3e4268 100%)'
                       : (scrollProgress > 0.35
-                          ? 'radial-gradient(circle, #a3a7d1 0%, #5d618d 100%)'
+                          ? 'radial-gradient(circle at center, #9498c9 0%, #525682 100%)'
                           : 'linear-gradient(135deg, #2b3a33 0%, #1a2520 100%)'),
                     display: 'flex',
                     flexDirection: 'column',
@@ -1221,70 +1222,70 @@
                     transition: 'background 0.5s ease'
                   }}
                 >
-                  {/* SCENARIO 1 (0% - 35%): OVERTHINKERS ILLUSTRATION WITH TANGLED THOUGHT CLOUDS */}
+                  {/* ACT 1 (0% - 35%): OVERTHINKERS ILLUSTRATION WITH TANGLED THOUGHT CLOUDS */}
                   {scrollProgress <= 0.35 && (
                     <div style={{ animation: 'welcomePop 0.4s ease-out', maxWidth: '650px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'center', gap: '30px', marginBottom: '20px' }}>
-                        <div style={{ textAlign: 'center' }}>
+                      <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginBottom: '20px' }}>
+                        <div style={{ textAlign: 'center', backgroundColor: 'rgba(255,255,255,0.08)', padding: '12px 18px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.15)' }}>
                           <div style={{ fontSize: '2.5rem' }}>👩‍💼</div>
-                          <div style={{ fontSize: '0.75rem', color: '#A3B8AC', marginTop: '4px' }}>Working Professional</div>
-                          <div style={{ fontSize: '0.72rem', backgroundColor: 'rgba(255,255,255,0.15)', padding: '3px 8px', borderRadius: '12px', marginTop: '4px' }}>🌀 Overthinking</div>
+                          <div style={{ fontSize: '0.8rem', color: '#A3B8AC', marginTop: '4px', fontWeight: 700 }}>Working Professional</div>
+                          <div style={{ fontSize: '0.72rem', backgroundColor: 'rgba(255,255,255,0.15)', padding: '3px 8px', borderRadius: '12px', marginTop: '6px' }}>🌀 Overthinking</div>
                         </div>
-                        <div style={{ textAlign: 'center', transform: 'scale(1.15)' }}>
+                        <div style={{ textAlign: 'center', backgroundColor: 'rgba(220, 39, 67, 0.15)', padding: '14px 20px', borderRadius: '18px', border: '2px solid rgba(255, 215, 0, 0.6)', transform: 'scale(1.08)' }}>
                           <div style={{ fontSize: '2.8rem' }}>🧑‍🎓</div>
-                          <div style={{ fontSize: '0.8rem', color: '#FFD700', fontWeight: 800, marginTop: '4px' }}>College Student</div>
-                          <div style={{ fontSize: '0.75rem', backgroundColor: 'rgba(220, 39, 67, 0.4)', color: 'white', padding: '4px 10px', borderRadius: '12px', marginTop: '4px', fontWeight: 700 }}>🌀 "Carrying this alone..."</div>
+                          <div style={{ fontSize: '0.85rem', color: '#FFD700', fontWeight: 800, marginTop: '4px' }}>College Student</div>
+                          <div style={{ fontSize: '0.75rem', backgroundColor: 'rgba(220, 39, 67, 0.5)', color: 'white', padding: '4px 10px', borderRadius: '12px', marginTop: '6px', fontWeight: 800 }}>🌀 "Carrying this alone..."</div>
                         </div>
-                        <div style={{ textAlign: 'center' }}>
+                        <div style={{ textAlign: 'center', backgroundColor: 'rgba(255,255,255,0.08)', padding: '12px 18px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.15)' }}>
                           <div style={{ fontSize: '2.5rem' }}>👨‍🦳</div>
-                          <div style={{ fontSize: '0.75rem', color: '#A3B8AC', marginTop: '4px' }}>Elder / Adult</div>
-                          <div style={{ fontSize: '0.72rem', backgroundColor: 'rgba(255,255,255,0.15)', padding: '3px 8px', borderRadius: '12px', marginTop: '4px' }}>🌀 Exhausted</div>
+                          <div style={{ fontSize: '0.8rem', color: '#A3B8AC', marginTop: '4px', fontWeight: 700 }}>Elder / Adult</div>
+                          <div style={{ fontSize: '0.72rem', backgroundColor: 'rgba(255,255,255,0.15)', padding: '3px 8px', borderRadius: '12px', marginTop: '6px' }}>🌀 Exhausted</div>
                         </div>
                       </div>
-                      <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'white', marginBottom: '6px' }}>
+                      <h3 style={{ fontSize: 'clamp(1.2rem, 2.5vw, 1.5rem)', fontWeight: 800, color: 'white', marginBottom: '8px' }}>
                         "Telling the wrong person won't fix it."
                       </h3>
-                      <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.9rem' }}>
-                        Random opinions lead to more confusion. You need real, structured mental care.
+                      <p style={{ color: 'rgba(255,255,255,0.88)', fontSize: '0.94rem', lineHeight: 1.5 }}>
+                        Random opinions lead to more confusion. You don't need random opinions—you need real, structured guidance.
                       </p>
                     </div>
                   )}
 
-                  {/* SCENARIO 2 (35% - 65%): 3D BRAIN WITH LIGHT BEAMS */}
+                  {/* ACT 2 (35% - 65%): 3D BRAIN WITH LIGHT BEAMS */}
                   {scrollProgress > 0.35 && scrollProgress <= 0.65 && (
                     <div style={{ animation: 'welcomePop 0.4s ease-out', textAlign: 'center' }}>
                       <div style={{ position: 'relative', display: 'inline-block', marginBottom: '16px' }}>
-                        <div style={{ fontSize: '5rem', filter: 'drop-shadow(0 0 25px rgba(255,255,255,0.6))', animation: 'float 3s ease-in-out infinite' }}>
+                        <div style={{ fontSize: '5.5rem', filter: 'drop-shadow(0 0 30px rgba(255,255,255,0.75))', animation: 'float 3s ease-in-out infinite' }}>
                           🧠
                         </div>
                         <div style={{
                           position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-                          width: '140px', height: '140px', borderRadius: '50%',
-                          background: 'radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%)',
+                          width: '160px', height: '160px', borderRadius: '50%',
+                          background: 'radial-gradient(circle, rgba(255,255,255,0.45) 0%, transparent 70%)',
                           zIndex: -1
                         }}></div>
                       </div>
-                      <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'white', marginBottom: '6px' }}>
+                      <h3 style={{ fontSize: 'clamp(1.4rem, 2.8vw, 1.75rem)', fontWeight: 800, color: 'white', marginBottom: '8px' }}>
                         Mind Ease Wellness Hub
                       </h3>
-                      <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.92rem', maxWidth: '520px' }}>
+                      <p style={{ color: 'rgba(255,255,255,0.92)', fontSize: '0.95rem', maxWidth: '540px', lineHeight: 1.5 }}>
                         Shining light into mental overload with clarity, empathy, and professional guidance.
                       </p>
                     </div>
                   )}
 
-                  {/* SCENARIO 3 (65% - 100%): SPARKLING LOGO & FLOATING KEYWORDS */}
+                  {/* ACT 3 (65% - 100%): SPARKLING LOGO & FLOATING KEYWORDS */}
                   {scrollProgress > 0.65 && (
                     <div style={{ animation: 'welcomePop 0.4s ease-out', textAlign: 'center' }}>
                       <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', flexWrap: 'wrap', marginBottom: '20px' }}>
-                        <span style={{ backgroundColor: 'rgba(255,255,255,0.25)', color: 'white', padding: '6px 16px', borderRadius: '20px', fontWeight: 800, fontSize: '0.85rem' }}>✨ Support</span>
-                        <span style={{ backgroundColor: 'rgba(255,255,255,0.25)', color: '#FFD700', padding: '6px 16px', borderRadius: '20px', fontWeight: 800, fontSize: '0.85rem' }}>⭐ Solutions</span>
-                        <span style={{ backgroundColor: 'rgba(255,255,255,0.25)', color: 'white', padding: '6px 16px', borderRadius: '20px', fontWeight: 800, fontSize: '0.85rem' }}>🎓 Professional</span>
+                        <span style={{ backgroundColor: 'rgba(255,255,255,0.25)', color: 'white', padding: '8px 20px', borderRadius: '24px', fontWeight: 800, fontSize: '0.9rem', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>✨ Support</span>
+                        <span style={{ backgroundColor: 'rgba(255,215,0,0.3)', color: '#FFD700', padding: '8px 20px', borderRadius: '24px', fontWeight: 800, fontSize: '0.9rem', border: '1.5px solid #FFD700', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>⭐ Solutions</span>
+                        <span style={{ backgroundColor: 'rgba(255,255,255,0.25)', color: 'white', padding: '8px 20px', borderRadius: '24px', fontWeight: 800, fontSize: '0.9rem', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>🎓 Professional</span>
                       </div>
-                      <h3 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'white', marginBottom: '8px' }}>
+                      <h3 style={{ fontSize: 'clamp(1.5rem, 3vw, 1.85rem)', fontWeight: 800, color: 'white', marginBottom: '8px' }}>
                         MindEase Wellness Hub
                       </h3>
-                      <p style={{ color: '#E2E8F0', fontSize: '0.95rem', maxWidth: '540px' }}>
+                      <p style={{ color: '#E2E8F0', fontSize: '0.98rem', maxWidth: '560px', lineHeight: 1.5 }}>
                         Safe peer support circles • De-stress workshops • 1-on-1 expert guidance
                       </p>
                     </div>
