@@ -18,7 +18,7 @@
   <!-- Automatic Normal Browser Tab Disk Cache Purge & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_08_01_removed_second_action_bar_v33";
+      var MOBILE_VER = "mindease_v2026_08_01_nav_mobile_fix_v34";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -476,8 +476,11 @@
       }
     }
 
+    .mobile-only-inline { display: none !important; }
+
     @media (max-width: 960px) {
       .desktop-nav { display: none !important; }
+      .mobile-only-inline { display: inline-block !important; }
       .side-nav-arrow { width: 44px; height: 44px; font-size: 1.1rem; }
       .side-nav-arrow.left-arrow { left: 8px; }
       .side-nav-arrow.right-arrow { right: 8px; }
@@ -956,7 +959,7 @@
             </div>
 
             {/* RIGHT SIDE ACTION BUTTONS WITH INSTAGRAM & CALM MUSIC TOGGLE */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
               <button
                 onClick={onOpenInstaModal}
                 className="nav-page-btn"
@@ -964,11 +967,11 @@
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 14px',
+                  gap: '4px',
+                  padding: '7px 11px',
                   borderRadius: '50px',
                   fontWeight: 800,
-                  fontSize: '0.82rem',
+                  fontSize: '0.8rem',
                   background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
                   color: 'white',
                   border: 'none',
@@ -985,15 +988,15 @@
                 onClick={onToggleMusic}
                 onTouchEnd={(e) => { e.preventDefault(); onToggleMusic(e); }}
                 className={`music-toggle-btn ${isMusicPlaying ? 'playing' : ''}`}
-                title={isMusicPlaying ? "Pause Bamboo Flute Ambient Music" : "Play Bamboo Flute Ambient Music"}
+                title={isMusicPlaying ? "Pause Ambient Music" : "Play Ambient Music"}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '8px',
-                  padding: '8px 16px',
+                  gap: '4px',
+                  padding: '7px 11px',
                   borderRadius: '50px',
                   fontWeight: 700,
-                  fontSize: '0.82rem',
+                  fontSize: '0.8rem',
                   border: isMusicPlaying ? '1.5px solid #5B8A72' : '1.5px solid rgba(142, 125, 190, 0.4)',
                   backgroundColor: isMusicPlaying ? '#5B8A72' : 'rgba(255, 255, 255, 0.9)',
                   color: isMusicPlaying ? 'white' : '#274C38',
@@ -1004,11 +1007,15 @@
                 }}
               >
                 <span>{isMusicPlaying ? "🎵" : "⏸️"}</span>
-                <span>{isMusicPlaying ? "Calm Music Playing" : "Play Calm Music"}</span>
+                <span className="desktop-nav">{isMusicPlaying ? "Calm Music" : "Play Music"}</span>
               </button>
 
-              <MagneticButton onClick={() => onOpenBooking('General Wellness Session')} className="btn-primary" style={{ padding: '8px 20px', fontSize: '0.85rem' }}>
-                📅 Book Session
+              <MagneticButton
+                onClick={() => onOpenBooking('General Wellness Session')}
+                className="btn-primary"
+                style={{ padding: '7px 12px', fontSize: '0.8rem', whiteSpace: 'nowrap' }}
+              >
+                📅 <span className="desktop-nav">Book Session</span><span style={{ display: 'inline-block' }} className="mobile-only-inline">Book</span>
               </MagneticButton>
             </div>
           </div>
