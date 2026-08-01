@@ -18,7 +18,7 @@
   <!-- Automatic Normal Browser Tab Disk Cache Purge & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_08_01_cta_below_video_box_v29";
+      var MOBILE_VER = "mindease_v2026_08_01_end_logo_reveal_v30";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -1385,7 +1385,88 @@
                         Safe peer support circles • De-stress workshops • 1-on-1 expert guidance
                       </p>
                     </div>
-                  )}
+              {/* END-OF-STORY SPARKLING LOGO REVEAL OVERLAY (APPEARS WHEN VIDEO COMPLETES / SCROLL >= 82%) */}
+              {scrollProgress >= 0.82 && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(18, 28, 23, 0.88)',
+                    backdropFilter: 'blur(10px)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '20px',
+                    textAlign: 'center',
+                    zIndex: 25,
+                    animation: 'welcomePop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                  }}
+                >
+                  <div
+                    style={{
+                      position: 'relative',
+                      width: isMobile ? '72px' : '96px',
+                      height: isMobile ? '72px' : '96px',
+                      borderRadius: '50%',
+                      padding: '4px',
+                      background: 'linear-gradient(135deg, #FFD700 0%, #5B8A72 50%, #8E7DBE 100%)',
+                      boxShadow: '0 0 35px rgba(255, 215, 0, 0.55)',
+                      marginBottom: '12px'
+                    }}
+                  >
+                    <img
+                      src="./logo.jpg"
+                      alt="Mind Ease Wellness Hub Logo"
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: '50%',
+                        objectFit: 'cover'
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '-4px',
+                        right: '-4px',
+                        fontSize: '1.2rem',
+                        animation: 'spinSlow 6s linear infinite'
+                      }}
+                    >
+                      ✨
+                    </div>
+                  </div>
+
+                  <div className="brush-banner-purple" style={{ fontSize: '0.72rem', marginBottom: '6px' }}>
+                    ✦ MINDEASE WELLNESS HUB 🌿
+                  </div>
+                  <h3 style={{ fontSize: 'clamp(1.4rem, 3.2vw, 2.1rem)', fontWeight: 800, color: 'white', letterSpacing: '-0.3px', marginBottom: '6px', textShadow: '0 2px 14px rgba(0,0,0,0.5)' }}>
+                    Your Safe Space to Heal & Grow
+                  </h3>
+                  <p style={{ color: 'rgba(255, 255, 255, 0.92)', fontSize: isMobile ? '0.86rem' : '0.96rem', maxWidth: '520px', lineHeight: 1.45, marginBottom: '14px' }}>
+                    "Telling the wrong person won't fix it. Get structured, confidential, and empathetic guidance."
+                  </p>
+
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    <MagneticButton
+                      onClick={() => onOpenBooking('End Story Logo Booking')}
+                      className="btn-primary"
+                      style={{ padding: isMobile ? '8px 16px' : '10px 24px', fontSize: isMobile ? '0.8rem' : '0.88rem' }}
+                    >
+                      🎟️ Book Session Pass
+                    </MagneticButton>
+                    <MagneticButton
+                      onClick={handleOpenWhatsApp}
+                      className="btn-secondary"
+                      style={{ padding: isMobile ? '8px 16px' : '10px 24px', fontSize: isMobile ? '0.8rem' : '0.88rem', borderColor: '#25D366', color: 'white' }}
+                    >
+                      💬 WhatsApp Direct
+                    </MagneticButton>
+                  </div>
                 </div>
               )}
             </div>
