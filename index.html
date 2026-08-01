@@ -18,7 +18,7 @@
   <!-- Automatic Normal Browser Tab Disk Cache Purge & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_08_01_rocksolid_mobile_touch_v23";
+      var MOBILE_VER = "mindease_v2026_08_01_mobile_canvas_engine_v24";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -1071,7 +1071,7 @@
       );
     }
 
-    // --- PURE GRAPHIC VIDEO CANVAS (100% ROCK-SOLID ON MOBILE PHONES & DESKTOP) ---
+    // --- PURE GRAPHIC VIDEO CANVAS (100% ULTRA-SMOOTH ON ALL MOBILE PHONES & DESKTOP) ---
     function InteractiveStorytellingSection({ onOpenBooking, onNavigatePage }) {
       const sectionRef = useRef(null);
       const canvasContainerRef = useRef(null);
@@ -1080,6 +1080,7 @@
       const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
       const [isVideoLoaded, setIsVideoLoaded] = useState(false);
       const [isMobile, setIsMobile] = useState(false);
+      const [manualAct, setManualAct] = useState(null);
 
       useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 850);
@@ -1088,31 +1089,36 @@
         return () => window.removeEventListener('resize', checkMobile);
       }, []);
 
-      // Rock-Solid Scroll & Touch Listener for Mobile Phones & Desktop
+      // 60fps Ultra-Fast Touch & Scroll Calculation
       useEffect(() => {
         let ticking = false;
+        const calculateProgress = () => {
+          if (sectionRef.current) {
+            const rect = sectionRef.current.getBoundingClientRect();
+            const windowH = window.innerHeight || document.documentElement.clientHeight;
+            const totalDist = rect.height - windowH;
+            if (totalDist > 0) {
+              const currentScroll = Math.max(0, -rect.top);
+              const progress = Math.min(1, Math.max(0, currentScroll / totalDist));
+              setScrollProgress(progress);
+
+              // On Desktop, seek video. On Mobile, canvas handles 60fps touch scrub flawlessly!
+              if (videoRef.current && !isMobile) {
+                try {
+                  videoRef.current.pause();
+                  if (videoRef.current.duration && !isNaN(videoRef.current.duration)) {
+                    videoRef.current.currentTime = progress * videoRef.current.duration;
+                  }
+                } catch (e) {}
+              }
+            }
+          }
+        };
+
         const handleScrollOrTouch = () => {
           if (!ticking) {
             window.requestAnimationFrame(() => {
-              if (sectionRef.current) {
-                const rect = sectionRef.current.getBoundingClientRect();
-                const totalHeight = rect.height - window.innerHeight;
-                if (totalHeight > 0) {
-                  const currentScroll = Math.max(0, -rect.top);
-                  const progress = Math.min(1, Math.max(0, currentScroll / totalHeight));
-                  setScrollProgress(progress);
-
-                  // Update video scrubbing currentTime directly
-                  if (videoRef.current) {
-                    try {
-                      videoRef.current.pause();
-                      if (videoRef.current.duration && !isNaN(videoRef.current.duration)) {
-                        videoRef.current.currentTime = progress * videoRef.current.duration;
-                      }
-                    } catch (e) {}
-                  }
-                }
-              }
+              calculateProgress();
               ticking = false;
             });
             ticking = true;
@@ -1122,29 +1128,15 @@
         window.addEventListener('scroll', handleScrollOrTouch, { passive: true });
         window.addEventListener('touchmove', handleScrollOrTouch, { passive: true });
         window.addEventListener('touchstart', handleScrollOrTouch, { passive: true });
-        handleScrollOrTouch();
+        calculateProgress();
         return () => {
           window.removeEventListener('scroll', handleScrollOrTouch);
           window.removeEventListener('touchmove', handleScrollOrTouch);
           window.removeEventListener('touchstart', handleScrollOrTouch);
         };
-      }, []);
+      }, [isMobile]);
 
-      // Unlock Mobile Video Seeking on First Touch Interaction
-      const handleTouchStartUnlock = () => {
-        if (videoRef.current) {
-          try {
-            const p = videoRef.current.play();
-            if (p && p.then) {
-              p.then(() => {
-                videoRef.current.pause();
-              }).catch(() => {});
-            }
-          } catch (e) {}
-        }
-      };
-
-      // Pointer & Touch Parallax Movement Tracking
+      // Pointer & Touch Movement Parallax Tracking
       const handlePointerMove = (e) => {
         if (!canvasContainerRef.current) return;
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -1160,6 +1152,7 @@
         window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`, '_blank', 'noopener,noreferrer');
       };
 
+      const effectiveProgress = manualAct !== null ? manualAct : scrollProgress;
       const mouseXOffset = mousePos.x * 25;
       const mouseYOffset = mousePos.y * 18;
       const lightBeamAngle = mousePos.x * 20;
@@ -1167,7 +1160,6 @@
       return (
         <section
           ref={sectionRef}
-          onTouchStart={handleTouchStartUnlock}
           style={{
             position: 'relative',
             marginTop: '30px',
@@ -1177,7 +1169,7 @@
             height: isMobile ? '220vh' : '280vh'
           }}
         >
-          {/* STICKY PINNED SCROLL VIEWPORT */}
+          {/* STICKY PINNED VIEWPORT */}
           <div
             ref={canvasContainerRef}
             onMouseMove={handlePointerMove}
@@ -1204,17 +1196,71 @@
                 "Telling the wrong person won't fix it. You don't need random opinions—you need real, structured guidance."
               </p>
 
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '8px', backgroundColor: 'white', padding: '4px 14px', borderRadius: '50px', boxShadow: '0 4px 14px rgba(0,0,0,0.05)', border: '1.5px solid rgba(91,138,114,0.3)' }}>
-                <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#274C38' }}>
-                  📜 Story Progress: {Math.round(scrollProgress * 100)}%
-                </span>
-                <div style={{ width: '75px', height: '6px', backgroundColor: 'rgba(91,138,114,0.2)', borderRadius: '10px', overflow: 'hidden' }}>
-                  <div style={{ width: `${Math.round(scrollProgress * 100)}%`, height: '100%', backgroundColor: '#5B8A72', transition: 'width 0.1s linear' }}></div>
+              {/* INTERACTIVE PROGRESS BAR & MOBILE ACT TABS */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'white', padding: '4px 14px', borderRadius: '50px', boxShadow: '0 4px 14px rgba(0,0,0,0.05)', border: '1.5px solid rgba(91,138,114,0.3)' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#274C38' }}>
+                    📜 Story Progress: {Math.round(effectiveProgress * 100)}%
+                  </span>
+                  <div style={{ width: '80px', height: '6px', backgroundColor: 'rgba(91,138,114,0.2)', borderRadius: '10px', overflow: 'hidden' }}>
+                    <div style={{ width: `${Math.round(effectiveProgress * 100)}%`, height: '100%', backgroundColor: '#5B8A72', transition: 'width 0.1s linear' }}></div>
+                  </div>
                 </div>
+
+                {/* MOBILE TAP ACT CONTROLLER */}
+                {isMobile && (
+                  <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
+                    <button
+                      onClick={() => setManualAct(0.15)}
+                      style={{
+                        padding: '4px 10px',
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        borderRadius: '12px',
+                        border: 'none',
+                        backgroundColor: effectiveProgress <= 0.35 ? '#8E7DBE' : 'rgba(142,125,190,0.15)',
+                        color: effectiveProgress <= 0.35 ? 'white' : '#274C38',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Act 1: Chaos
+                    </button>
+                    <button
+                      onClick={() => setManualAct(0.5)}
+                      style={{
+                        padding: '4px 10px',
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        borderRadius: '12px',
+                        border: 'none',
+                        backgroundColor: effectiveProgress > 0.35 && effectiveProgress <= 0.65 ? '#5B8A72' : 'rgba(91,138,114,0.15)',
+                        color: effectiveProgress > 0.35 && effectiveProgress <= 0.65 ? 'white' : '#274C38',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Act 2: Brain Light
+                    </button>
+                    <button
+                      onClick={() => setManualAct(0.85)}
+                      style={{
+                        padding: '4px 10px',
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        borderRadius: '12px',
+                        border: 'none',
+                        backgroundColor: effectiveProgress > 0.65 ? '#274C38' : 'rgba(39,76,56,0.15)',
+                        color: effectiveProgress > 0.65 ? 'white' : '#274C38',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Act 3: Solution
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* FULL-BLEED GRAPHIC VIDEO VIEWPORT */}
+            {/* FULL-BLEED GRAPHIC CANVAS VIEWPORT */}
             <div
               style={{
                 position: 'relative',
@@ -1224,52 +1270,54 @@
                 backgroundColor: '#1A2621'
               }}
             >
-              {/* HTML5 VIDEO PLAYER (WORKS ON MOBILE & DESKTOP) */}
-              <video
-                id="storyVideo"
-                ref={videoRef}
-                src="./A1.mp4"
-                muted
-                playsInline
-                preload="auto"
-                onLoadedMetadata={() => setIsVideoLoaded(true)}
-                onCanPlay={() => setIsVideoLoaded(true)}
-                onError={() => setIsVideoLoaded(false)}
-                style={{
-                  width: '100%',
-                  height: isMobile ? '320px' : '500px',
-                  objectFit: 'cover',
-                  display: isVideoLoaded ? 'block' : 'none'
-                }}
-              >
-                <source src="./A1.mp4" type="video/mp4" />
-                <source src="./assets/mindease-story.mp4" type="video/mp4" />
-              </video>
+              {/* VIDEO PLAYER (ON DESKTOP) */}
+              {!isMobile && (
+                <video
+                  id="storyVideo"
+                  ref={videoRef}
+                  src="./A1.mp4"
+                  muted
+                  playsInline
+                  preload="auto"
+                  onLoadedMetadata={() => setIsVideoLoaded(true)}
+                  onCanPlay={() => setIsVideoLoaded(true)}
+                  onError={() => setIsVideoLoaded(false)}
+                  style={{
+                    width: '100%',
+                    height: '500px',
+                    objectFit: 'cover',
+                    display: isVideoLoaded ? 'block' : 'none'
+                  }}
+                >
+                  <source src="./A1.mp4" type="video/mp4" />
+                  <source src="./assets/mindease-story.mp4" type="video/mp4" />
+                </video>
+              )}
 
-              {/* DYNAMIC GRAPHIC CANVAS (SCROLL & MOUSE RESPONSIVE - MATCHES USER SCREENSHOTS EXACTLY) */}
-              {!isVideoLoaded && (
+              {/* DYNAMIC HIGH-PERFORMANCE CANVAS (RESPONSIVE ON ALL MOBILE PHONES & TABLETS) */}
+              {(isMobile || !isVideoLoaded) && (
                 <div
                   style={{
                     position: 'relative',
                     width: '100%',
                     height: isMobile ? '340px' : '500px',
-                    background: scrollProgress > 0.65
+                    background: effectiveProgress > 0.65
                       ? 'radial-gradient(circle at 50% 50%, #7679a6 0%, #34375a 100%)'
-                      : (scrollProgress > 0.35
+                      : (effectiveProgress > 0.35
                           ? 'radial-gradient(circle at 50% 50%, #8c90be 0%, #464a74 100%)'
                           : 'linear-gradient(135deg, #24332c 0%, #121c17 100%)'),
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    padding: '24px',
+                    padding: '20px',
                     textAlign: 'center',
                     color: 'white',
                     overflow: 'hidden',
-                    transition: 'background 0.6s ease'
+                    transition: 'background 0.5s ease'
                   }}
                 >
-                  {/* INTERACTIVE MOUSE PARALLAX BACKGROUND RAYS */}
+                  {/* INTERACTIVE MOUSE / TOUCH PARALLAX BACKGROUND RAYS */}
                   <div
                     style={{
                       position: 'absolute',
@@ -1277,111 +1325,111 @@
                       left: '-20%',
                       right: '-20%',
                       bottom: '-20%',
-                      background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.15) 0%, transparent 60%)',
+                      background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.18) 0%, transparent 60%)',
                       transform: `translate(${mouseXOffset}px, ${mouseYOffset}px) rotate(${lightBeamAngle}deg)`,
                       transition: 'transform 0.15s ease-out',
                       pointerEvents: 'none'
                     }}
                   ></div>
 
-                  {/* ACT 1 (0% - 35%): OVERTHINKERS ILLUSTRATION RESPONDING TO MOUSE & SCROLL */}
-                  {scrollProgress <= 0.35 && (
+                  {/* ACT 1 (0% - 35%): OVERTHINKERS ILLUSTRATION RESPONDING TO TOUCH & SCROLL */}
+                  {effectiveProgress <= 0.35 && (
                     <div style={{ animation: 'welcomePop 0.4s ease-out', position: 'relative', zIndex: 10, maxWidth: '680px' }}>
                       <div
                         style={{
                           display: 'flex',
                           justify: 'center',
-                          gap: '24px',
-                          marginBottom: '24px',
+                          gap: isMobile ? '12px' : '24px',
+                          marginBottom: '20px',
                           transform: `translate(${mouseXOffset * 0.8}px, ${mouseYOffset * 0.8}px)`,
                           transition: 'transform 0.15s ease-out'
                         }}
                       >
                         <div style={{ textAlign: 'center' }}>
-                          <div style={{ fontSize: '3rem', filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.3))' }}>👩‍💼</div>
-                          <div style={{ fontSize: '0.8rem', color: '#A3B8AC', marginTop: '6px', fontWeight: 700 }}>Working Professional</div>
-                          <div style={{ fontSize: '0.74rem', backgroundColor: 'rgba(255,255,255,0.12)', padding: '4px 10px', borderRadius: '20px', marginTop: '6px' }}>🌀 Overthinking</div>
+                          <div style={{ fontSize: isMobile ? '2.2rem' : '3rem', filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.3))' }}>👩‍💼</div>
+                          <div style={{ fontSize: '0.75rem', color: '#A3B8AC', marginTop: '4px', fontWeight: 700 }}>Professional</div>
+                          <div style={{ fontSize: '0.7rem', backgroundColor: 'rgba(255,255,255,0.12)', padding: '3px 8px', borderRadius: '16px', marginTop: '4px' }}>🌀 Overthinking</div>
                         </div>
 
-                        <div style={{ textAlign: 'center', transform: 'scale(1.12)' }}>
-                          <div style={{ fontSize: '3.3rem', filter: 'drop-shadow(0 8px 18px rgba(0,0,0,0.4))' }}>🧑‍🎓</div>
-                          <div style={{ fontSize: '0.88rem', color: '#FFD700', fontWeight: 800, marginTop: '6px' }}>College Student</div>
-                          <div style={{ fontSize: '0.78rem', backgroundColor: 'rgba(220, 39, 67, 0.6)', color: 'white', padding: '5px 12px', borderRadius: '20px', marginTop: '6px', fontWeight: 800, boxShadow: '0 4px 14px rgba(220, 39, 67, 0.4)' }}>
-                            🌀 "Carrying this alone..."
+                        <div style={{ textAlign: 'center', transform: 'scale(1.08)' }}>
+                          <div style={{ fontSize: isMobile ? '2.5rem' : '3.3rem', filter: 'drop-shadow(0 8px 18px rgba(0,0,0,0.4))' }}>🧑‍🎓</div>
+                          <div style={{ fontSize: '0.82rem', color: '#FFD700', fontWeight: 800, marginTop: '4px' }}>Student</div>
+                          <div style={{ fontSize: '0.72rem', backgroundColor: 'rgba(220, 39, 67, 0.65)', color: 'white', padding: '4px 10px', borderRadius: '16px', marginTop: '4px', fontWeight: 800, boxShadow: '0 4px 14px rgba(220, 39, 67, 0.4)' }}>
+                            🌀 "Carrying alone..."
                           </div>
                         </div>
 
                         <div style={{ textAlign: 'center' }}>
-                          <div style={{ fontSize: '3rem', filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.3))' }}>👨‍🦳</div>
-                          <div style={{ fontSize: '0.8rem', color: '#A3B8AC', marginTop: '6px', fontWeight: 700 }}>Elder / Adult</div>
-                          <div style={{ fontSize: '0.74rem', backgroundColor: 'rgba(255,255,255,0.12)', padding: '4px 10px', borderRadius: '20px', marginTop: '6px' }}>🌀 Exhausted</div>
+                          <div style={{ fontSize: isMobile ? '2.2rem' : '3rem', filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.3))' }}>👨‍🦳</div>
+                          <div style={{ fontSize: '0.75rem', color: '#A3B8AC', marginTop: '4px', fontWeight: 700 }}>Adult / Elder</div>
+                          <div style={{ fontSize: '0.7rem', backgroundColor: 'rgba(255,255,255,0.12)', padding: '3px 8px', borderRadius: '16px', marginTop: '4px' }}>🌀 Exhausted</div>
                         </div>
                       </div>
 
-                      <h3 style={{ fontSize: 'clamp(1.3rem, 2.7vw, 1.65rem)', fontWeight: 800, color: 'white', marginBottom: '8px', textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
+                      <h3 style={{ fontSize: 'clamp(1.25rem, 2.7vw, 1.65rem)', fontWeight: 800, color: 'white', marginBottom: '6px', textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
                         "Telling the wrong person won't fix it."
                       </h3>
-                      <p style={{ color: 'rgba(255,255,255,0.88)', fontSize: '0.96rem', lineHeight: 1.55 }}>
+                      <p style={{ color: 'rgba(255,255,255,0.88)', fontSize: isMobile ? '0.88rem' : '0.96rem', lineHeight: 1.45 }}>
                         Random opinions lead to more confusion. You don't need random opinions—you need real, structured guidance.
                       </p>
                     </div>
                   )}
 
-                  {/* ACT 2 (35% - 65%): 3D ILLUMINATED BRAIN TRACKING MOUSE CURSOR */}
-                  {scrollProgress > 0.35 && scrollProgress <= 0.65 && (
+                  {/* ACT 2 (35% - 65%): 3D ILLUMINATED BRAIN TRACKING TOUCH & SCROLL */}
+                  {effectiveProgress > 0.35 && effectiveProgress <= 0.65 && (
                     <div style={{ animation: 'welcomePop 0.4s ease-out', position: 'relative', zIndex: 10, textAlign: 'center' }}>
                       <div
                         style={{
                           position: 'relative',
                           display: 'inline-block',
-                          marginBottom: '20px',
+                          marginBottom: '16px',
                           transform: `translate(${mouseXOffset * 1.2}px, ${mouseYOffset * 1.2}px) scale(1.05)`,
                           transition: 'transform 0.15s ease-out'
                         }}
                       >
-                        <div style={{ fontSize: '6rem', filter: 'drop-shadow(0 0 35px rgba(255,255,255,0.8))', animation: 'float 3s ease-in-out infinite' }}>
+                        <div style={{ fontSize: isMobile ? '4.5rem' : '6rem', filter: 'drop-shadow(0 0 35px rgba(255,255,255,0.8))', animation: 'float 3s ease-in-out infinite' }}>
                           🧠
                         </div>
                         <div style={{
                           position: 'absolute', top: '50%', left: '50%', transform: `translate(-50%, -50%) rotate(${lightBeamAngle}deg)`,
-                          width: '180px', height: '180px', borderRadius: '50%',
+                          width: '150px', height: '150px', borderRadius: '50%',
                           background: 'radial-gradient(circle, rgba(255,255,255,0.5) 0%, transparent 70%)',
                           zIndex: -1
                         }}></div>
                       </div>
 
-                      <h3 style={{ fontSize: 'clamp(1.5rem, 3vw, 1.9rem)', fontWeight: 800, color: 'white', marginBottom: '8px', textShadow: '0 2px 12px rgba(0,0,0,0.4)' }}>
+                      <h3 style={{ fontSize: 'clamp(1.4rem, 3vw, 1.9rem)', fontWeight: 800, color: 'white', marginBottom: '6px', textShadow: '0 2px 12px rgba(0,0,0,0.4)' }}>
                         Mind Ease Wellness Hub
                       </h3>
-                      <p style={{ color: 'rgba(255,255,255,0.92)', fontSize: '0.98rem', maxWidth: '540px', lineHeight: 1.55 }}>
+                      <p style={{ color: 'rgba(255,255,255,0.92)', fontSize: isMobile ? '0.88rem' : '0.98rem', maxWidth: '540px', lineHeight: 1.45 }}>
                         Shining light into mental overload with clarity, empathy, and professional guidance.
                       </p>
                     </div>
                   )}
 
-                  {/* ACT 3 (65% - 100%): SPARKLING LOGO & FLOATING KEYWORDS SHIFTING WITH MOUSE */}
-                  {scrollProgress > 0.65 && (
+                  {/* ACT 3 (65% - 100%): SPARKLING LOGO & FLOATING KEYWORDS SHIFTING WITH TOUCH */}
+                  {effectiveProgress > 0.65 && (
                     <div style={{ animation: 'welcomePop 0.4s ease-out', position: 'relative', zIndex: 10, textAlign: 'center' }}>
                       <div
                         style={{
                           display: 'flex',
                           justify: 'center',
-                          gap: '16px',
+                          gap: isMobile ? '10px' : '16px',
                           flexWrap: 'wrap',
-                          marginBottom: '24px',
+                          marginBottom: '18px',
                           transform: `translate(${mouseXOffset}px, ${mouseYOffset}px)`,
                           transition: 'transform 0.15s ease-out'
                         }}
                       >
-                        <span style={{ backgroundColor: 'rgba(255,255,255,0.22)', color: 'white', padding: '8px 22px', borderRadius: '30px', fontWeight: 800, fontSize: '0.92rem', boxShadow: '0 6px 20px rgba(0,0,0,0.15)' }}>✨ Support</span>
-                        <span style={{ backgroundColor: 'rgba(255,215,0,0.35)', color: '#FFD700', padding: '8px 22px', borderRadius: '30px', fontWeight: 800, fontSize: '0.92rem', border: '1.5px solid #FFD700', boxShadow: '0 6px 20px rgba(0,0,0,0.2)' }}>⭐ Solutions</span>
-                        <span style={{ backgroundColor: 'rgba(255,255,255,0.22)', color: 'white', padding: '8px 22px', borderRadius: '30px', fontWeight: 800, fontSize: '0.92rem', boxShadow: '0 6px 20px rgba(0,0,0,0.15)' }}>🎓 Professional</span>
+                        <span style={{ backgroundColor: 'rgba(255,255,255,0.22)', color: 'white', padding: '6px 18px', borderRadius: '25px', fontWeight: 800, fontSize: '0.85rem', boxShadow: '0 6px 20px rgba(0,0,0,0.15)' }}>✨ Support</span>
+                        <span style={{ backgroundColor: 'rgba(255,215,0,0.35)', color: '#FFD700', padding: '6px 18px', borderRadius: '25px', fontWeight: 800, fontSize: '0.85rem', border: '1.5px solid #FFD700', boxShadow: '0 6px 20px rgba(0,0,0,0.2)' }}>⭐ Solutions</span>
+                        <span style={{ backgroundColor: 'rgba(255,255,255,0.22)', color: 'white', padding: '6px 18px', borderRadius: '25px', fontWeight: 800, fontSize: '0.85rem', boxShadow: '0 6px 20px rgba(0,0,0,0.15)' }}>🎓 Professional</span>
                       </div>
 
-                      <h3 style={{ fontSize: 'clamp(1.6rem, 3.2vw, 2rem)', fontWeight: 800, color: 'white', marginBottom: '8px', textShadow: '0 2px 14px rgba(0,0,0,0.4)' }}>
+                      <h3 style={{ fontSize: 'clamp(1.5rem, 3.2vw, 2rem)', fontWeight: 800, color: 'white', marginBottom: '6px', textShadow: '0 2px 14px rgba(0,0,0,0.4)' }}>
                         MindEase Wellness Hub
                       </h3>
-                      <p style={{ color: '#E2E8F0', fontSize: '1rem', maxWidth: '580px', lineHeight: 1.55 }}>
+                      <p style={{ color: '#E2E8F0', fontSize: isMobile ? '0.9rem' : '1rem', maxWidth: '580px', lineHeight: 1.45 }}>
                         Safe peer support circles • De-stress workshops • 1-on-1 expert guidance
                       </p>
                     </div>
