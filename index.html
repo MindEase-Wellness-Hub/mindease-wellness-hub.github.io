@@ -18,7 +18,7 @@
   <!-- Automatic Normal Browser Tab Disk Cache Purge & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_08_01_zero_lag_gpu_v38";
+      var MOBILE_VER = "mindease_v2026_08_01_zero_lag_grid_v39";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -1487,12 +1487,10 @@
       );
     }
 
-    // --- SCROLL-TRIGGERED EXPLODING WELLNESS STACK & SHOWCASE COMPONENT ---
+    // --- WELLNESS PILLARS ACCORDION GRID (ZERO LAG, PURE REACT STATE) ---
     function DeconstructedWellnessStack({ onNavigatePage, onOpenBooking }) {
-      const [scrollProgress, setScrollProgress] = useState(0);
-      const [activeLayer, setActiveLayer] = useState(null); // Default collapsed for clean accordion
+      const [activeLayer, setActiveLayer] = useState(null);
       const [isMobile, setIsMobile] = useState(false);
-      const containerRef = useRef(null);
 
       const pillars = [
         {
@@ -1551,274 +1549,161 @@
 
       // Detect mobile screens
       useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 850);
+        const checkMobile = () => setIsMobile(window.innerWidth < 700);
         checkMobile();
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
       }, []);
 
-      // High Performance Zero-Lag Scroll Listener (Desktop Only)
-      useEffect(() => {
-        if (isMobile) return;
-        let ticking = false;
-        let lastProgress = 0;
-
-        const handleScroll = () => {
-          if (!ticking) {
-            window.requestAnimationFrame(() => {
-              if (containerRef.current) {
-                const rect = containerRef.current.getBoundingClientRect();
-                const totalHeight = rect.height - window.innerHeight;
-                if (totalHeight > 0) {
-                  const currentScroll = Math.max(0, -rect.top);
-                  const progress = Math.min(1, Math.max(0, currentScroll / totalHeight));
-                  if (Math.abs(progress - lastProgress) > 0.015) {
-                    lastProgress = progress;
-                    setScrollProgress(progress);
-                  }
-                }
-              }
-              ticking = false;
-            });
-            ticking = true;
-          }
-        };
-
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        handleScroll();
-        return () => window.removeEventListener('scroll', handleScroll);
-      }, [isMobile]);
-
-      // Calculate explosion factor for desktop
-      let explodeFactor = 0;
-      if (!isMobile) {
-        if (scrollProgress <= 0.5) {
-          explodeFactor = scrollProgress * 2;
-        } else {
-          explodeFactor = (1 - scrollProgress) * 2;
-        }
-      }
-
-      // HIGH PERFORMANCE 2D LIGHTWEIGHT DISPLACEMENTS FOR LAPTOP (ZERO LAG)
-      const translateYs = [
-        -140 * explodeFactor,
-        -45 * explodeFactor,
-        45 * explodeFactor,
-        140 * explodeFactor
-      ];
+      const toggleLayer = (idx) => setActiveLayer(prev => prev === idx ? null : idx);
 
       return (
         <div style={{ marginTop: '50px', paddingTop: '36px', borderTop: '2px dashed rgba(91, 138, 114, 0.25)' }}>
           {/* HEADER */}
-          <div style={{ textAlign: 'center', marginBottom: isMobile ? '20px' : '30px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '30px' }}>
             <div className="brush-banner-purple" style={{ fontSize: '0.78rem', marginBottom: '10px' }}>
               📚 THE WELLNESS FOUNDATION
             </div>
             <h2 style={{ fontSize: 'clamp(1.7rem, 3.8vw, 2.5rem)', fontWeight: 800, color: '#274C38', marginBottom: '8px' }}>
               Mind Ease Wellness Pillars
             </h2>
-            <p style={{ color: '#5A6E63', maxWidth: '680px', margin: '0 auto 14px', fontSize: isMobile ? '0.88rem' : '0.96rem' }}>
-              {isMobile
-                ? "Tap any pillar card below to expand its core features!"
-                : "Explore our 4 core wellness pillars! Hover or click any pillar to inspect."}
+            <p style={{ color: '#5A6E63', maxWidth: '680px', margin: '0 auto', fontSize: isMobile ? '0.88rem' : '0.96rem' }}>
+              Tap any pillar to expand its core features, services and booking options.
             </p>
-
-            {!isMobile && (
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(91,138,114,0.1)', padding: '6px 16px', borderRadius: '50px', border: '1px solid rgba(91,138,114,0.3)', color: '#274C38', fontSize: '0.85rem', fontWeight: 700 }}>
-                <span>📜 Pillar Expansion: {Math.round(scrollProgress * 100)}%</span>
-                <div style={{ width: '80px', height: '6px', backgroundColor: 'rgba(91,138,114,0.2)', borderRadius: '10px', overflow: 'hidden' }}>
-                  <div style={{ width: `${scrollProgress * 100}%`, height: '100%', backgroundColor: '#5B8A72', transition: 'width 0.1s linear' }}></div>
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* CONTAINER (CLEAN ACCORDION ON MOBILE, FAST SMOOTH EXPLOSION ON LAPTOP) */}
-          <div
-            ref={containerRef}
-            style={{
-              position: 'relative',
-              height: isMobile ? 'auto' : '140vh',
-              marginBottom: isMobile ? '50px' : '30px'
-            }}
-          >
-            <div style={{
-              position: isMobile ? 'relative' : 'sticky',
-              top: isMobile ? '0' : '85px',
-              maxWidth: '920px',
-              margin: '0 auto',
-              padding: isMobile ? '0 16px' : '16px'
-            }}>
-              <div style={{
-                position: 'relative',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: isMobile ? '12px' : '0px'
-              }}>
-                {pillars.map((pillar, idx) => {
-                  const isActive = activeLayer === idx;
-                  const currentTY = isMobile ? 0 : translateYs[idx];
-                  const calloutOpacity = Math.min(1, explodeFactor * 1.6);
-                  const calloutTranslateX = (1 - explodeFactor) * 40;
-
-                  return (
-                    <div
-                      key={pillar.id}
-                      onClick={() => setActiveLayer(prev => prev === idx ? null : idx)}
-                      onMouseEnter={() => !isMobile && setActiveLayer(idx)}
-                      style={{
-                        position: 'relative',
-                        background: pillar.bg,
-                        color: 'white',
-                        borderRadius: isMobile ? '16px' : '20px',
-                        padding: isMobile ? '16px 18px' : '22px 26px',
-                        cursor: 'pointer',
-                        boxShadow: isActive ? '0 14px 35px rgba(0,0,0,0.22)' : '0 6px 20px rgba(0,0,0,0.1)',
-                        marginTop: !isMobile && idx > 0 ? '-24px' : '0px',
-                        zIndex: isActive ? 40 : pillars.length - idx,
-                        transform: isMobile
-                          ? (isActive ? 'scale(1.01)' : 'scale(1)')
-                          : `translate3d(0, ${currentTY}px, 0) ${isActive ? 'scale(1.02)' : 'scale(1)'}`,
-                        transition: isMobile ? 'all 0.2s ease' : 'transform 0.15s ease-out, box-shadow 0.2s ease',
-                        border: '1.5px solid rgba(255,255,255,0.35)',
-                        willChange: isMobile ? 'auto' : 'transform'
-                      }}
-                    >
-                      {/* DESKTOP DYNAMIC CALLOUT LINES & LABEL TAGS */}
-                      {!isMobile && explodeFactor > 0.08 && (
-                        <>
-                          {/* LEFT CALLOUT */}
-                          <div style={{
-                            position: 'absolute',
-                            left: '-205px',
-                            top: '50%',
-                            transform: `translateY(-50%) translateX(${-calloutTranslateX}px)`,
-                            opacity: calloutOpacity,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                            pointerEvents: 'none'
-                          }}>
-                            <div style={{
-                              backgroundColor: 'white',
-                              color: '#274C38',
-                              padding: '6px 14px',
-                              borderRadius: '20px',
-                              fontWeight: 800,
-                              fontSize: '0.78rem',
-                              boxShadow: '0 6px 20px rgba(0,0,0,0.18)',
-                              border: `2.5px solid ${pillar.accentColor}`,
-                              whiteSpace: 'nowrap'
-                            }}>
-                              {pillar.leftCallout}
-                            </div>
-                            <div style={{ width: '45px', height: '2.5px', backgroundColor: pillar.accentColor, borderRadius: '2px' }}></div>
-                          </div>
-
-                          {/* RIGHT CALLOUT */}
-                          <div style={{
-                            position: 'absolute',
-                            right: '-205px',
-                            top: '50%',
-                            transform: `translateY(-50%) translateX(${calloutTranslateX}px)`,
-                            opacity: calloutOpacity,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                            pointerEvents: 'none'
-                          }}>
-                            <div style={{ width: '45px', height: '2.5px', backgroundColor: pillar.accentColor, borderRadius: '2px' }}></div>
-                            <div style={{
-                              backgroundColor: 'white',
-                              color: '#274C38',
-                              padding: '6px 14px',
-                              borderRadius: '20px',
-                              fontWeight: 800,
-                              fontSize: '0.78rem',
-                              boxShadow: '0 6px 20px rgba(0,0,0,0.18)',
-                              border: `2.5px solid ${pillar.accentColor}`,
-                              whiteSpace: 'nowrap'
-                            }}>
-                              {pillar.rightCallout}
-                            </div>
-                          </div>
-                        </>
-                      )}
-
-                      {/* CARD HEADER */}
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <span style={{ fontSize: isMobile ? '1.6rem' : '2.2rem', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))' }}>{pillar.icon}</span>
-                          <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                              <span style={{ fontSize: '0.65rem', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase', backgroundColor: 'rgba(255,255,255,0.25)', padding: '2px 8px', borderRadius: '20px' }}>
-                                {pillar.badge}
-                              </span>
-                            </div>
-                            <h3 style={{ fontSize: isMobile ? '1.02rem' : '1.25rem', color: 'white', fontWeight: 800, marginTop: '2px', fontFamily: 'var(--font-heading)' }}>
-                              {pillar.title}
-                            </h3>
-                          </div>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 800, opacity: 0.8, display: isMobile ? 'none' : 'inline' }}>
-                            {isActive ? 'Tap to Close' : 'Tap to Expand'}
-                          </span>
-                          <span style={{ fontSize: '1rem', transform: isActive ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}>
-                            ▼
-                          </span>
-                        </div>
+          {/* PILLAR ACCORDION GRID — NO SCROLL TRACKING, ZERO LAG */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
+            gap: '16px',
+            maxWidth: '920px',
+            margin: '0 auto',
+            padding: '0 16px 50px'
+          }}>
+            {pillars.map((pillar, idx) => {
+              const isActive = activeLayer === idx;
+              return (
+                <div
+                  key={pillar.id}
+                  onClick={() => toggleLayer(idx)}
+                  style={{
+                    background: pillar.bg,
+                    color: 'white',
+                    borderRadius: '18px',
+                    padding: '20px 22px',
+                    cursor: 'pointer',
+                    boxShadow: isActive
+                      ? '0 16px 40px rgba(0,0,0,0.24)'
+                      : '0 6px 18px rgba(0,0,0,0.1)',
+                    border: isActive
+                      ? '2px solid rgba(255,255,255,0.6)'
+                      : '2px solid rgba(255,255,255,0.28)',
+                    transform: isActive ? 'scale(1.01)' : 'scale(1)',
+                    transition: 'transform 0.22s ease, box-shadow 0.22s ease, border 0.22s ease',
+                    userSelect: 'none'
+                  }}
+                >
+                  {/* CARD HEADER */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span style={{ fontSize: '2rem', filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.2))' }}>
+                        {pillar.icon}
+                      </span>
+                      <div>
+                        <span style={{
+                          fontSize: '0.62rem', fontWeight: 800, letterSpacing: '1.5px',
+                          textTransform: 'uppercase', backgroundColor: 'rgba(255,255,255,0.22)',
+                          padding: '2px 8px', borderRadius: '20px', display: 'inline-block', marginBottom: '3px'
+                        }}>
+                          {pillar.badge}
+                        </span>
+                        <h3 style={{ fontSize: '1.05rem', color: 'white', fontWeight: 800, lineHeight: 1.25, fontFamily: 'var(--font-heading)' }}>
+                          {pillar.title}
+                        </h3>
                       </div>
+                    </div>
+                    <span style={{
+                      fontSize: '1.1rem',
+                      transform: isActive ? 'rotate(180deg)' : 'rotate(0deg)',
+                      transition: 'transform 0.28s ease',
+                      flexShrink: 0,
+                      marginLeft: '8px'
+                    }}>▼</span>
+                  </div>
 
-                      <p style={{ fontSize: isMobile ? '0.82rem' : '0.9rem', color: 'rgba(255,255,255,0.92)', marginTop: '6px', marginBottom: isActive ? '12px' : '0px', lineHeight: 1.35 }}>
-                        {pillar.subtitle}
+                  {/* SUBTITLE */}
+                  <p style={{
+                    fontSize: '0.82rem',
+                    color: 'rgba(255,255,255,0.85)',
+                    marginTop: '8px',
+                    marginBottom: isActive ? '14px' : '0',
+                    lineHeight: 1.35
+                  }}>
+                    {pillar.subtitle}
+                  </p>
+
+                  {/* EXPANDED CONTENT — RENDERED ONLY WHEN ACTIVE */}
+                  {isActive && (
+                    <div style={{
+                      paddingTop: '12px',
+                      borderTop: '1px solid rgba(255,255,255,0.28)',
+                      animation: 'welcomePop 0.28s ease-out'
+                    }}>
+                      <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.95)', marginBottom: '12px', lineHeight: 1.5 }}>
+                        {pillar.desc}
                       </p>
 
-                      {/* EXPANDED CONTENT DETAILS (ONLY REVEALED WHEN ACTIVE OR ON DESKTOP EXPLODE FACTOR > 0.4) */}
-                      {(isActive || (!isMobile && explodeFactor > 0.4)) && (
-                        <div style={{ animation: 'welcomePop 0.3s ease-out', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.25)', marginTop: '10px' }}>
-                          <p style={{ fontSize: '0.86rem', color: 'rgba(255,255,255,0.95)', marginBottom: '10px', lineHeight: 1.45 }}>
-                            {pillar.desc}
-                          </p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '14px' }}>
+                        {pillar.features.map((feat, fIdx) => (
+                          <span key={fIdx} style={{
+                            fontSize: '0.74rem', fontWeight: 700,
+                            backgroundColor: 'rgba(255,255,255,0.2)',
+                            padding: '3px 10px', borderRadius: '12px'
+                          }}>
+                            ✓ {feat}
+                          </span>
+                        ))}
+                      </div>
 
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '14px' }}>
-                            {pillar.features.map((feat, fIdx) => (
-                              <span key={fIdx} style={{ fontSize: '0.75rem', fontWeight: 700, backgroundColor: 'rgba(255,255,255,0.22)', padding: '3px 10px', borderRadius: '12px' }}>
-                                ✓ {feat}
-                              </span>
-                            ))}
-                          </div>
-
-                          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); onOpenBooking(pillar.title); }}
-                              style={{
-                                backgroundColor: 'white', color: pillar.accentColor, border: 'none', padding: '7px 16px',
-                                borderRadius: '50px', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-                              }}
-                            >
-                              📅 Book {pillar.title.split(' ')[0]} Session →
-                            </button>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); onNavigatePage('offerings'); }}
-                              style={{
-                                backgroundColor: 'transparent', color: 'white', border: '1.5px solid white', padding: '7px 14px',
-                                borderRadius: '50px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer'
-                              }}
-                            >
-                              Explore Offerings
-                            </button>
-                          </div>
-                        </div>
-                      )}
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onOpenBooking(pillar.title); }}
+                          style={{
+                            backgroundColor: 'white', color: pillar.accentColor,
+                            border: 'none', padding: '8px 18px',
+                            borderRadius: '50px', fontWeight: 800,
+                            fontSize: '0.82rem', cursor: 'pointer',
+                            boxShadow: '0 4px 14px rgba(0,0,0,0.18)',
+                            transition: 'transform 0.18s ease'
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.04)'}
+                          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                        >
+                          📅 Book {pillar.title.split(' ')[0]} Session →
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onNavigatePage('offerings'); }}
+                          style={{
+                            backgroundColor: 'transparent', color: 'white',
+                            border: '1.5px solid rgba(255,255,255,0.7)',
+                            padding: '8px 16px', borderRadius: '50px',
+                            fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer',
+                            transition: 'background 0.18s ease'
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.18)'}
+                          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                        >
+                          Explore Offerings
+                        </button>
+                      </div>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
+
 
           {/* INTERACTIVE OFFERINGS SHOWCASE CARDS (HORIZONTAL TILT SHOWCASE BELOW EXPLODING STACK) */}
           <div style={{ marginTop: '50px', paddingTop: '40px', borderTop: '2px dashed rgba(91, 138, 114, 0.25)' }}>
