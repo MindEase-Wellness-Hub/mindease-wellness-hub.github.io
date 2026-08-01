@@ -18,7 +18,7 @@
   <!-- Automatic Normal Browser Tab Disk Cache Purge & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_08_01_svg_animated_canvas_v13";
+      var MOBILE_VER = "mindease_v2026_08_01_pinned_storyline_canvas_v14";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -1071,9 +1071,9 @@
       );
     }
 
-    // --- SCROLL-AND-CURSOR VISUAL ANIMATED STORYLINE CANVAS ("Why Mind Ease Exists") ---
+    // --- SCROLL-PINNED & CURSOR ANIMATED STORYLINE CANVAS ("Why Mind Ease Exists") ---
     function InteractiveStorytellingSection({ onOpenBooking, onNavigatePage }) {
-      const sectionRef = useRef(null);
+      const pinContainerRef = useRef(null);
       const [storyProgress, setStoryProgress] = useState(0);
       const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
       const [activeAvatar, setActiveAvatar] = useState(0);
@@ -1086,19 +1086,21 @@
         return () => window.removeEventListener('resize', checkMobile);
       }, []);
 
-      // 60fps Scroll Progress Calculation
+      // 60fps Scroll Pinning Progress Calculation
       useEffect(() => {
+        if (isMobile) return;
         let ticking = false;
         const handleScroll = () => {
           if (!ticking) {
             window.requestAnimationFrame(() => {
-              if (sectionRef.current) {
-                const rect = sectionRef.current.getBoundingClientRect();
-                const windowHeight = window.innerHeight;
-                const totalDist = rect.height + windowHeight;
-                const currentDist = windowHeight - rect.top;
-                const progress = Math.min(1, Math.max(0, currentDist / totalDist));
-                setStoryProgress(progress);
+              if (pinContainerRef.current) {
+                const rect = pinContainerRef.current.getBoundingClientRect();
+                const totalHeight = rect.height - window.innerHeight;
+                if (totalHeight > 0) {
+                  const currentScroll = Math.max(0, -rect.top);
+                  const progress = Math.min(1, Math.max(0, currentScroll / totalHeight));
+                  setStoryProgress(progress);
+                }
               }
               ticking = false;
             });
@@ -1109,37 +1111,37 @@
         window.addEventListener('scroll', handleScroll, { passive: true });
         handleScroll();
         return () => window.removeEventListener('scroll', handleScroll);
-      }, []);
+      }, [isMobile]);
 
-      // Smooth Mouse Cursor Parallax
+      // Smooth Mouse Cursor Parallax Tracking
       const handleMouseMove = (e) => {
-        if (!sectionRef.current || isMobile) return;
-        const rect = sectionRef.current.getBoundingClientRect();
+        if (!pinContainerRef.current || isMobile) return;
+        const rect = pinContainerRef.current.getBoundingClientRect();
         const relX = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
         const relY = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
         setMouseOffset({ x: relX, y: relY });
       };
 
-      // Math for Tangled Wire Morphing
-      // Progress 0.0 -> 0.45: High Chaos & Tangled Loops
-      // Progress 0.45 -> 0.70: Core Compression & Overload
-      // Progress 0.70 -> 1.00: Untangled Smooth Waves & Serenity
-      const untangleLevel = Math.min(1, Math.max(0, (storyProgress - 0.25) / 0.6));
-      const mx = mouseOffset.x * 35;
-      const my = mouseOffset.y * 25;
+      // Narrative Stage Calculation based on Scroll Pinning
+      // Progress 0.0 -> 0.40 (ACT 1: Chaos & Overwhelm)
+      // Progress 0.40 -> 0.70 (ACT 2: Convergence & Search for Guidance)
+      // Progress 0.70 -> 1.00 (ACT 3: Untangling & Mind Ease Serenity Solution)
+      const untangleLevel = isMobile ? 1 : Math.min(1, Math.max(0, (storyProgress - 0.25) / 0.55));
+      const mx = mouseOffset.x * 40;
+      const my = mouseOffset.y * 30;
 
-      // Dynamic SVG Curve Paths generated in real time
-      const wire1Path = untangleLevel > 0.6
-        ? `M 50,225 Q ${250 + mx},${150 + my} 500,225 T ${950 - mx},225`
-        : `M 50,225 C ${200 + mx},${50 + my} ${400 - mx},${400 - my} ${500 + mx},225 C ${600 - mx},${50 + my} ${800 + mx},${400 - my} 950,225`;
+      // Dynamic SVG Bezier Paths Morphing with Scroll & Mouse
+      const wire1Path = untangleLevel > 0.55
+        ? `M 50,225 Q ${250 + mx},${140 + my} 500,225 T ${950 - mx},225`
+        : `M 50,225 C ${200 + mx},${40 + my} ${400 - mx},${410 - my} ${500 + mx},225 C ${600 - mx},${40 + my} ${800 + mx},${410 - my} 950,225`;
 
-      const wire2Path = untangleLevel > 0.6
-        ? `M 50,225 Q ${250 - mx},${300 - my} 500,225 T ${950 + mx},225`
-        : `M 50,225 C ${300 - mx},${380 + my} ${200 + mx},${70 - my} ${500 - mx},225 C ${700 + mx},${380 - my} ${750 - mx},${70 + my} 950,225`;
+      const wire2Path = untangleLevel > 0.55
+        ? `M 50,225 Q ${250 - mx},${310 - my} 500,225 T ${950 + mx},225`
+        : `M 50,225 C ${300 - mx},${390 + my} ${200 + mx},${60 - my} ${500 - mx},225 C ${700 + mx},${390 - my} ${750 - mx},${60 + my} 950,225`;
 
-      const wire3Path = untangleLevel > 0.6
-        ? `M 50,225 Q ${250 + mx * 0.5},${200 + my * 0.5} 500,225 T ${950 - mx * 0.5},225`
-        : `M 50,225 C ${150 + mx * 1.5},${300 + my} ${450 - mx},${100 - my} ${500 + mx},225 C ${650 - mx},${350 + my} ${850 + mx},${120 - my} 950,225`;
+      const wire3Path = untangleLevel > 0.55
+        ? `M 50,225 Q ${250 + mx * 0.5},${210 + my * 0.5} 500,225 T ${950 - mx * 0.5},225`
+        : `M 50,225 C ${150 + mx * 1.5},${310 + my} ${450 - mx},${90 - my} ${500 + mx},225 C ${650 - mx},${360 + my} ${850 + mx},${110 - my} 950,225`;
 
       const avatars = [
         {
@@ -1148,13 +1150,12 @@
           thought: '"Will I pass exams & build a career?"',
           color: '#5B8A72',
           icon: '🎓',
-          left: '12%',
-          top: '22%'
+          left: '14%',
+          top: '25%'
         },
         {
           id: 'young',
           title: 'Young Adults 🧑🤝🧑',
-          tagline: 'Relationships & Identity',
           thought: '"Am I being judged for speaking out?"',
           color: '#8E7DBE',
           icon: '🧑🤝🧑',
@@ -1168,218 +1169,229 @@
           color: '#E88E7D',
           icon: '💼',
           left: '84%',
-          top: '22%'
+          top: '25%'
         }
       ];
 
       const handleOpenWhatsApp = () => {
-        const waMsg = `Hi Mind Ease Wellness Hub! I explored the "Why Mind Ease Exists" interactive story on your site and would like to speak directly with support.`;
+        const waMsg = `Hi Mind Ease Wellness Hub! I experienced "Why Mind Ease Exists" on your site and would like to speak directly with support.`;
         window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`, '_blank', 'noopener,noreferrer');
       };
 
       return (
         <div
-          ref={sectionRef}
+          ref={pinContainerRef}
           onMouseMove={handleMouseMove}
           style={{
             position: 'relative',
-            marginTop: '70px',
-            padding: isMobile ? '40px 16px' : '60px 24px',
+            marginTop: '60px',
             borderTop: '2px dashed rgba(91, 138, 114, 0.28)',
-            overflow: 'hidden',
-            borderRadius: '36px',
-            background: untangleLevel > 0.5
-              ? 'linear-gradient(180deg, rgba(249,248,243,0.95) 0%, rgba(91,138,114,0.12) 100%)'
-              : 'linear-gradient(180deg, rgba(249,248,243,0.95) 0%, rgba(142,125,190,0.10) 100%)',
-            transition: 'background 0.6s ease'
+            height: isMobile ? 'auto' : '250vh'
           }}
         >
-          {/* HEADER */}
-          <div style={{ textAlign: 'center', marginBottom: '32px', position: 'relative', zIndex: 10 }}>
-            <div className="brush-banner-purple" style={{ fontSize: '0.8rem', marginBottom: '12px' }}>
-              ✦ ANIMATED INTERACTIVE STORYLINE 🎨
-            </div>
-            <h2 style={{ fontSize: 'clamp(2rem, 4.5vw, 2.8rem)', fontWeight: 800, color: '#274C38', marginBottom: '10px' }}>
-              Why Mind Ease Exists
-            </h2>
-            <p style={{ color: '#5A6E63', maxWidth: '640px', margin: '0 auto', fontSize: '1.02rem', lineHeight: 1.6 }}>
-              "Telling the wrong person won't fix it. You don't need random opinions—you need real, structured guidance."
-            </p>
-
-            {/* UNTANGLE CONTROL INDICATOR */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginTop: '16px', backgroundColor: 'white', padding: '8px 20px', borderRadius: '50px', boxShadow: '0 6px 20px rgba(0,0,0,0.06)', border: '1.5px solid rgba(91,138,114,0.3)' }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#274C38' }}>
-                {untangleLevel > 0.6 ? '✨ Mind Status: Untangled & Peaceful' : '⚡ Mind Status: Overwhelmed Thoughts'}
-              </span>
-              <div style={{ width: '90px', height: '8px', backgroundColor: 'rgba(91,138,114,0.2)', borderRadius: '10px', overflow: 'hidden' }}>
-                <div style={{ width: `${Math.round(untangleLevel * 100)}%`, height: '100%', backgroundColor: untangleLevel > 0.6 ? '#5B8A72' : '#8E7DBE', transition: 'all 0.2s ease' }}></div>
+          {/* STICKY VIEWPORT CONTAINER */}
+          <div style={{
+            position: isMobile ? 'relative' : 'sticky',
+            top: isMobile ? '0' : '75px',
+            maxWidth: '1150px',
+            margin: '0 auto',
+            padding: isMobile ? '30px 16px' : '40px 20px',
+            borderRadius: '36px',
+            background: untangleLevel > 0.55
+              ? 'linear-gradient(180deg, rgba(249,248,243,0.98) 0%, rgba(91,138,114,0.14) 100%)'
+              : 'linear-gradient(180deg, rgba(249,248,243,0.98) 0%, rgba(142,125,190,0.12) 100%)',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.06)',
+            transition: 'background 0.6s ease'
+          }}>
+            {/* HEADER */}
+            <div style={{ textAlign: 'center', marginBottom: '24px', position: 'relative', zIndex: 10 }}>
+              <div className="brush-banner-purple" style={{ fontSize: '0.8rem', marginBottom: '10px' }}>
+                ✦ ANIMATED PIN & SCROLL STORYLINE 🌿
               </div>
-            </div>
-          </div>
+              <h2 style={{ fontSize: 'clamp(1.9rem, 4.2vw, 2.7rem)', fontWeight: 800, color: '#274C38', marginBottom: '8px' }}>
+                Why Mind Ease Exists
+              </h2>
+              <p style={{ color: '#5A6E63', maxWidth: '640px', margin: '0 auto', fontSize: '1rem', lineHeight: 1.5, fontWeight: 500 }}>
+                "Telling the wrong person won't fix it. You don't need random opinions—you need real, structured guidance."
+              </p>
 
-          {/* DYNAMIC SVG ANIMATED CANVAS OF TANGLED VS HARMONIOUS WIRES */}
-          <div style={{ position: 'relative', width: '100%', height: isMobile ? '320px' : '420px', margin: '10px 0 30px' }}>
-            <svg
-              viewBox="0 0 1000 450"
-              style={{
-                width: '100%',
-                height: '100%',
-                overflow: 'visible',
-                filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.08))'
-              }}
-            >
-              <defs>
-                <linearGradient id="chaosGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#dc2743" />
-                  <stop offset="50%" stopColor="#8E7DBE" />
-                  <stop offset="100%" stopColor="#554473" />
-                </linearGradient>
-
-                <linearGradient id="calmGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#5B8A72" />
-                  <stop offset="50%" stopColor="#FFD700" />
-                  <stop offset="100%" stopColor="#385E4C" />
-                </linearGradient>
-
-                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="6" result="blur" />
-                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
-              </defs>
-
-              {/* DYNAMIC MORPHING SVG WIRE PATHS */}
-              <path
-                d={wire1Path}
-                fill="none"
-                stroke={untangleLevel > 0.6 ? "url(#calmGrad)" : "url(#chaosGrad)"}
-                strokeWidth={untangleLevel > 0.6 ? "6" : "8"}
-                strokeLinecap="round"
-                filter="url(#glow)"
-                style={{ transition: 'd 0.25s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.5s ease' }}
-              />
-
-              <path
-                d={wire2Path}
-                fill="none"
-                stroke={untangleLevel > 0.6 ? "url(#calmGrad)" : "#8E7DBE"}
-                strokeWidth={untangleLevel > 0.6 ? "4" : "6"}
-                strokeDasharray={untangleLevel > 0.6 ? "none" : "10 5"}
-                strokeLinecap="round"
-                style={{ transition: 'd 0.25s cubic-bezier(0.16, 1, 0.3, 1)', opacity: 0.85 }}
-              />
-
-              <path
-                d={wire3Path}
-                fill="none"
-                stroke={untangleLevel > 0.6 ? "#5B8A72" : "#E88E7D"}
-                strokeWidth="4"
-                strokeLinecap="round"
-                style={{ transition: 'd 0.25s cubic-bezier(0.16, 1, 0.3, 1)', opacity: 0.7 }}
-              />
-
-              {/* CENTRAL BRAIN CORE NODE */}
-              <g transform="translate(500, 225)">
-                <circle
-                  r={untangleLevel > 0.6 ? "45" : "58"}
-                  fill={untangleLevel > 0.6 ? "#5B8A72" : "#8E7DBE"}
-                  opacity="0.25"
-                  style={{ transition: 'all 0.4s ease' }}
-                />
-                <circle
-                  r={untangleLevel > 0.6 ? "32" : "42"}
-                  fill={untangleLevel > 0.6 ? "#5B8A72" : "#554473"}
-                  filter="url(#glow)"
-                  style={{ transition: 'all 0.4s ease' }}
-                />
-                <text
-                  x="0"
-                  y="10"
-                  textAnchor="middle"
-                  fill="white"
-                  fontSize={untangleLevel > 0.6 ? "28" : "34"}
-                  style={{ userSelect: 'none', transition: 'all 0.3s ease' }}
-                >
-                  {untangleLevel > 0.6 ? '🌿' : '🧠'}
-                </text>
-              </g>
-            </svg>
-
-            {/* FLOATING INTERACTIVE AVATAR CARDS SHIFTING WITH CURSOR */}
-            {!isMobile && avatars.map((av, idx) => {
-              const isActive = activeAvatar === idx;
-              const shiftX = mouseOffset.x * (idx === 1 ? -15 : 15);
-              const shiftY = mouseOffset.y * 12;
-
-              return (
-                <div
-                  key={av.id}
-                  onClick={() => setActiveAvatar(idx)}
-                  onMouseEnter={() => setActiveAvatar(idx)}
-                  style={{
-                    position: 'absolute',
-                    top: av.top,
-                    left: av.left,
-                    transform: `translate(-50%, -50%) translate(${shiftX}px, ${shiftY}px) scale(${isActive ? 1.06 : 1})`,
-                    transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                    backgroundColor: 'white',
-                    padding: '14px 20px',
-                    borderRadius: '24px',
-                    boxShadow: isActive ? '0 16px 36px rgba(0,0,0,0.15)' : '0 8px 24px rgba(0,0,0,0.06)',
-                    border: `2px solid ${av.color}`,
-                    cursor: 'pointer',
-                    zIndex: isActive ? 25 : 10,
-                    maxWidth: '240px',
-                    textAlign: 'center'
-                  }}
-                >
-                  <div style={{ fontSize: '1.8rem', marginBottom: '4px' }}>{av.icon}</div>
-                  <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#274C38' }}>{av.title}</div>
-                  <div style={{ fontSize: '0.78rem', color: av.color, fontWeight: 700, margin: '4px 0 6px' }}>
-                    {av.thought}
+              {/* LIVE SCROLL & MOUSE UNTANGLE PROGRESS BADGE */}
+              {!isMobile && (
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', marginTop: '14px', backgroundColor: 'white', padding: '6px 18px', borderRadius: '50px', boxShadow: '0 4px 16px rgba(0,0,0,0.05)', border: '1.5px solid rgba(91,138,114,0.3)' }}>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#274C38' }}>
+                    {untangleLevel > 0.55 ? '✨ ACT 3: Mind Untangled & Peaceful' : (storyProgress > 0.3 ? '⚡ ACT 2: Overload & Seeking Guidance' : '💭 ACT 1: Tangled Thoughts & Chaos')}
+                  </span>
+                  <div style={{ width: '90px', height: '7px', backgroundColor: 'rgba(91,138,114,0.2)', borderRadius: '10px', overflow: 'hidden' }}>
+                    <div style={{ width: `${Math.round(storyProgress * 100)}%`, height: '100%', backgroundColor: untangleLevel > 0.55 ? '#5B8A72' : '#8E7DBE', transition: 'width 0.1s linear' }}></div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-
-          {/* HIGH-CONVERSION SOLUTION BANNER & CTAS */}
-          <div
-            style={{
-              maxWidth: '850px',
-              margin: '0 auto',
-              textAlign: 'center',
-              padding: '32px 24px',
-              borderRadius: '26px',
-              backgroundColor: 'white',
-              boxShadow: '0 16px 45px rgba(91, 138, 114, 0.14)',
-              border: '2px solid rgba(91, 138, 114, 0.3)',
-              position: 'relative',
-              zIndex: 15
-            }}
-          >
-            <div style={{ fontSize: '0.8rem', fontWeight: 800, letterSpacing: '1px', color: '#8E7DBE', textTransform: 'uppercase', marginBottom: '8px' }}>
-              THE MIND EASE SOLUTION 🌿
+              )}
             </div>
-            <h3 style={{ fontSize: 'clamp(1.2rem, 2.5vw, 1.55rem)', fontWeight: 800, color: '#274C38', marginBottom: '16px', lineHeight: 1.4 }}>
-              "Mind Ease Wellness Hub provides safe peer support circles, structured de-stress workshops, and 1-on-1 expert guidance."
-            </h3>
 
-            <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '14px', marginTop: '24px' }}>
-              <MagneticButton
-                onClick={() => onOpenBooking('Confidential Storytelling Session')}
-                className="btn-primary"
-                style={{ padding: '12px 28px', fontSize: '0.95rem' }}
+            {/* INTERACTIVE ANIMATED SVG CANVAS WITH REAL-TIME BEZIER PHYSICS */}
+            <div style={{ position: 'relative', width: '100%', height: isMobile ? '280px' : '360px', margin: '0 0 20px' }}>
+              <svg
+                viewBox="0 0 1000 450"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  overflow: 'visible',
+                  filter: 'drop-shadow(0 12px 24px rgba(0,0,0,0.08))'
+                }}
               >
-                🎟️ Book Your Confidential Session
-              </MagneticButton>
+                <defs>
+                  <linearGradient id="chaosGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#dc2743" />
+                    <stop offset="50%" stopColor="#8E7DBE" />
+                    <stop offset="100%" stopColor="#554473" />
+                  </linearGradient>
 
-              <MagneticButton
-                onClick={handleOpenWhatsApp}
-                className="btn-secondary"
-                style={{ padding: '12px 28px', fontSize: '0.95rem', borderColor: '#25D366', color: '#274C38' }}
-              >
-                💬 Speak With Us Directly
-              </MagneticButton>
+                  <linearGradient id="calmGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#5B8A72" />
+                    <stop offset="50%" stopColor="#FFD700" />
+                    <stop offset="100%" stopColor="#385E4C" />
+                  </linearGradient>
+
+                  <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="6" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                </defs>
+
+                {/* DYNAMIC MORPHING SVG WIRE PATHS */}
+                <path
+                  d={wire1Path}
+                  fill="none"
+                  stroke={untangleLevel > 0.55 ? "url(#calmGrad)" : "url(#chaosGrad)"}
+                  strokeWidth={untangleLevel > 0.55 ? "6" : "8"}
+                  strokeLinecap="round"
+                  filter="url(#glow)"
+                  style={{ transition: 'd 0.25s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.5s ease' }}
+                />
+
+                <path
+                  d={wire2Path}
+                  fill="none"
+                  stroke={untangleLevel > 0.55 ? "url(#calmGrad)" : "#8E7DBE"}
+                  strokeWidth={untangleLevel > 0.55 ? "4" : "6"}
+                  strokeDasharray={untangleLevel > 0.55 ? "none" : "10 5"}
+                  strokeLinecap="round"
+                  style={{ transition: 'd 0.25s cubic-bezier(0.16, 1, 0.3, 1)', opacity: 0.85 }}
+                />
+
+                <path
+                  d={wire3Path}
+                  fill="none"
+                  stroke={untangleLevel > 0.55 ? "#5B8A72" : "#E88E7D"}
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  style={{ transition: 'd 0.25s cubic-bezier(0.16, 1, 0.3, 1)', opacity: 0.7 }}
+                />
+
+                {/* CENTRAL BRAIN CORE NODE */}
+                <g transform="translate(500, 225)">
+                  <circle
+                    r={untangleLevel > 0.55 ? "42" : "56"}
+                    fill={untangleLevel > 0.55 ? "#5B8A72" : "#8E7DBE"}
+                    opacity="0.25"
+                    style={{ transition: 'all 0.4s ease' }}
+                  />
+                  <circle
+                    r={untangleLevel > 0.55 ? "30" : "40"}
+                    fill={untangleLevel > 0.55 ? "#5B8A72" : "#554473"}
+                    filter="url(#glow)"
+                    style={{ transition: 'all 0.4s ease' }}
+                  />
+                  <text
+                    x="0"
+                    y="9"
+                    textAnchor="middle"
+                    fill="white"
+                    fontSize={untangleLevel > 0.55 ? "26" : "32"}
+                    style={{ userSelect: 'none', transition: 'all 0.3s ease' }}
+                  >
+                    {untangleLevel > 0.55 ? '🌿' : '🧠'}
+                  </text>
+                </g>
+              </svg>
+
+              {/* FLOATING INTERACTIVE AVATAR CARDS SHIFTING WITH CURSOR */}
+              {!isMobile && avatars.map((av, idx) => {
+                const isActive = activeAvatar === idx;
+                const shiftX = mouseOffset.x * (idx === 1 ? -18 : 18);
+                const shiftY = mouseOffset.y * 14;
+
+                return (
+                  <div
+                    key={av.id}
+                    onClick={() => setActiveAvatar(idx)}
+                    onMouseEnter={() => setActiveAvatar(idx)}
+                    style={{
+                      position: 'absolute',
+                      top: av.top,
+                      left: av.left,
+                      transform: `translate(-50%, -50%) translate(${shiftX}px, ${shiftY}px) scale(${isActive ? 1.05 : 1})`,
+                      transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                      backgroundColor: 'white',
+                      padding: '12px 18px',
+                      borderRadius: '22px',
+                      boxShadow: isActive ? '0 14px 32px rgba(0,0,0,0.14)' : '0 6px 20px rgba(0,0,0,0.06)',
+                      border: `2px solid ${av.color}`,
+                      cursor: 'pointer',
+                      zIndex: isActive ? 25 : 10,
+                      maxWidth: '230px',
+                      textAlign: 'center'
+                    }}
+                  >
+                    <div style={{ fontSize: '1.6rem', marginBottom: '2px' }}>{av.icon}</div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#274C38' }}>{av.title}</div>
+                    <div style={{ fontSize: '0.76rem', color: av.color, fontWeight: 700, margin: '2px 0 4px' }}>
+                      {av.thought}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* HIGH-CONVERSION SOLUTION BANNER & CTAS */}
+            <div
+              style={{
+                maxWidth: '820px',
+                margin: '0 auto',
+                textAlign: 'center',
+                padding: '24px 20px',
+                borderRadius: '24px',
+                backgroundColor: 'white',
+                boxShadow: '0 14px 40px rgba(91, 138, 114, 0.12)',
+                border: '2px solid rgba(91, 138, 114, 0.28)',
+                position: 'relative',
+                zIndex: 15
+              }}
+            >
+              <div style={{ fontSize: '0.78rem', fontWeight: 800, letterSpacing: '1px', color: '#8E7DBE', textTransform: 'uppercase', marginBottom: '6px' }}>
+                THE MIND EASE SOLUTION 🌿
+              </div>
+              <h3 style={{ fontSize: 'clamp(1.15rem, 2.3vw, 1.45rem)', fontWeight: 800, color: '#274C38', marginBottom: '14px', lineHeight: 1.4 }}>
+                "Mind Ease Wellness Hub provides safe peer support circles, structured de-stress workshops, and 1-on-1 expert guidance."
+              </h3>
+
+              <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '12px', marginTop: '16px' }}>
+                <MagneticButton
+                  onClick={() => onOpenBooking('Confidential Storytelling Session')}
+                  className="btn-primary"
+                  style={{ padding: '10px 24px', fontSize: '0.9rem' }}
+                >
+                  🎟️ Book Your Confidential Session
+                </MagneticButton>
+
+                <MagneticButton
+                  onClick={handleOpenWhatsApp}
+                  className="btn-secondary"
+                  style={{ padding: '10px 24px', fontSize: '0.9rem', borderColor: '#25D366', color: '#274C38' }}
+                >
+                  💬 Speak With Us Directly
+                </MagneticButton>
+              </div>
             </div>
           </div>
         </div>
