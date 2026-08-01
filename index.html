@@ -18,7 +18,7 @@
   <!-- Automatic Normal Browser Tab Disk Cache Purge & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_08_01_nav_mobile_fix_v34";
+      var MOBILE_VER = "mindease_v2026_08_01_smooth_3d_stack_v35";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -1557,9 +1557,8 @@
         return () => window.removeEventListener('resize', checkMobile);
       }, []);
 
-      // 60fps Throttled Scroll Listener & GSAP ScrollTrigger Integration
+      // 60fps Throttled Scroll Listener & Touch Trackers (Active on both Laptop & Mobile Phones)
       useEffect(() => {
-        if (isMobile) return;
         let ticking = false;
 
         const handleScroll = () => {
@@ -1581,47 +1580,52 @@
         };
 
         window.addEventListener('scroll', handleScroll, { passive: true });
+        window.addEventListener('touchmove', handleScroll, { passive: true });
         handleScroll();
-        return () => window.removeEventListener('scroll', handleScroll);
-      }, [isMobile]);
+        return () => {
+          window.removeEventListener('scroll', handleScroll);
+          window.removeEventListener('touchmove', handleScroll);
+        };
+      }, []);
 
       // Calculate explosion factor: rises from 0 -> 1 during first 50%, then re-assembles from 1 -> 0 during 50% -> 100%
       let explodeFactor = 0;
-      if (!isMobile) {
-        if (scrollProgress <= 0.5) {
-          explodeFactor = scrollProgress * 2; // 0 to 1
-        } else {
-          explodeFactor = (1 - scrollProgress) * 2; // 1 to 0
-        }
+      if (scrollProgress <= 0.5) {
+        explodeFactor = scrollProgress * 2; // 0 to 1
+      } else {
+        explodeFactor = (1 - scrollProgress) * 2; // 1 to 0
       }
 
       // DRAMATIC & ULTRA-SMOOTH 3D PARALLAX EXPLOSION DISPLACEMENTS (Proportional for all 4 Pillars)
+      const maxTY = isMobile ? 130 : 210;
+      const maxTX = isMobile ? 18 : 32;
+
       const translateYs = [
-        -210 * explodeFactor,
-        -70 * explodeFactor,
-        70 * explodeFactor,
-        210 * explodeFactor
+        -maxTY * explodeFactor,
+        -(maxTY / 3) * explodeFactor,
+        (maxTY / 3) * explodeFactor,
+        maxTY * explodeFactor
       ];
 
       const translateXs = [
-        -32 * explodeFactor,
-        25 * explodeFactor,
-        -25 * explodeFactor,
-        32 * explodeFactor
+        -maxTX * explodeFactor,
+        (maxTX * 0.7) * explodeFactor,
+        -(maxTX * 0.7) * explodeFactor,
+        maxTX * explodeFactor
       ];
 
       const rotateXs = [
-        7 * explodeFactor,
-        3.5 * explodeFactor,
-        -3.5 * explodeFactor,
-        -7 * explodeFactor
+        6 * explodeFactor,
+        3 * explodeFactor,
+        -3 * explodeFactor,
+        -6 * explodeFactor
       ];
 
       const rotateYs = [
-        -5 * explodeFactor,
-        3.5 * explodeFactor,
-        -3.5 * explodeFactor,
-        5 * explodeFactor
+        -4 * explodeFactor,
+        3 * explodeFactor,
+        -3 * explodeFactor,
+        4 * explodeFactor
       ];
 
       return (
@@ -1635,34 +1639,30 @@
               Deconstructed Mind Ease Wellness Stack
             </h2>
             <p style={{ color: '#5A6E63', maxWidth: '680px', margin: '0 auto 16px', fontSize: '0.98rem' }}>
-              {isMobile
-                ? "Click or tap any layer to inspect its core mental health foundation!"
-                : "Scroll down to experience ultra-smooth 3D assembly & disassembly with spring callout benefits!"}
+              Scroll down to experience ultra-smooth 3D assembly & disassembly! Tap any layer to inspect details.
             </p>
 
-            {!isMobile && (
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(91,138,114,0.1)', padding: '6px 16px', borderRadius: '50px', border: '1px solid rgba(91,138,114,0.3)', color: '#274C38', fontSize: '0.85rem', fontWeight: 700 }}>
-                <span>📜 Scroll Assembly Progress: {Math.round(scrollProgress * 100)}%</span>
-                <div style={{ width: '80px', height: '6px', backgroundColor: 'rgba(91,138,114,0.2)', borderRadius: '10px', overflow: 'hidden' }}>
-                  <div style={{ width: `${scrollProgress * 100}%`, height: '100%', backgroundColor: '#5B8A72', transition: 'width 0.1s linear' }}></div>
-                </div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(91,138,114,0.1)', padding: '6px 16px', borderRadius: '50px', border: '1px solid rgba(91,138,114,0.3)', color: '#274C38', fontSize: '0.85rem', fontWeight: 700 }}>
+              <span>📜 Scroll Assembly Progress: {Math.round(scrollProgress * 100)}%</span>
+              <div style={{ width: '80px', height: '6px', backgroundColor: 'rgba(91,138,114,0.2)', borderRadius: '10px', overflow: 'hidden' }}>
+                <div style={{ width: `${scrollProgress * 100}%`, height: '100%', backgroundColor: '#5B8A72', transition: 'width 0.1s linear' }}></div>
               </div>
-            )}
+            </div>
           </div>
 
-          {/* SCROLL-PINNED 3D EXPLODING CONTAINER */}
+          {/* SCROLL-PINNED 3D EXPLODING CONTAINER (WORKS ON BOTH LAPTOP & MOBILE PHONES) */}
           <div
             ref={containerRef}
             style={{
               position: 'relative',
-              height: isMobile ? 'auto' : '250vh',
+              height: isMobile ? '180vh' : '250vh',
               marginBottom: '40px',
               perspective: '1200px'
             }}
           >
             <div style={{
-              position: isMobile ? 'relative' : 'sticky',
-              top: isMobile ? '0' : '85px',
+              position: 'sticky',
+              top: isMobile ? '60px' : '85px',
               maxWidth: '920px',
               margin: '0 auto',
               padding: '20px 16px',
@@ -1672,15 +1672,15 @@
                 position: 'relative',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: isMobile ? '16px' : '0px'
+                gap: '0px'
               }}>
                 {pillars.map((pillar, idx) => {
                   const isActive = activeLayer === idx;
-                  const currentTY = isMobile ? 0 : translateYs[idx];
-                  const currentTX = isMobile ? 0 : translateXs[idx];
-                  const currentRX = isMobile ? 0 : rotateXs[idx];
-                  const currentRY = isMobile ? 0 : rotateYs[idx];
-                  const calloutOpacity = isMobile ? 1 : Math.min(1, explodeFactor * 1.6);
+                  const currentTY = translateYs[idx];
+                  const currentTX = translateXs[idx];
+                  const currentRX = rotateXs[idx];
+                  const currentRY = rotateYs[idx];
+                  const calloutOpacity = isMobile ? 0.9 : Math.min(1, explodeFactor * 1.6);
                   const calloutTranslateX = isMobile ? 0 : (1 - explodeFactor) * 50;
 
                   return (
@@ -1693,13 +1693,13 @@
                         background: pillar.bg,
                         color: 'white',
                         borderRadius: isMobile ? '20px' : '24px',
-                        padding: isMobile ? '20px 22px' : '24px 28px',
+                        padding: isMobile ? '18px 20px' : '24px 28px',
                         cursor: 'pointer',
                         boxShadow: isActive || explodeFactor > 0.3 ? '0 24px 55px rgba(0,0,0,0.28)' : '0 8px 24px rgba(0,0,0,0.1)',
-                        marginTop: !isMobile && idx > 0 ? '-32px' : '0px',
+                        marginTop: idx > 0 ? (isMobile ? '-20px' : '-32px') : '0px',
                         zIndex: isActive ? 40 : pillars.length - idx,
-                        transform: `translateY(${currentTY}px) translateX(${currentTX}px) rotateX(${currentRX}deg) rotateY(${currentRY}deg) ${isActive ? 'scale(1.04)' : 'scale(1)'}`,
-                        transition: 'transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s ease',
+                        transform: `translate3d(${currentTX}px, ${currentTY}px, 0px) rotateX(${currentRX}deg) rotateY(${currentRY}deg) ${isActive ? 'scale(1.03)' : 'scale(1)'}`,
+                        transition: 'transform 0.12s linear, box-shadow 0.2s ease',
                         border: '2px solid rgba(255,255,255,0.38)',
                         willChange: 'transform'
                       }}
