@@ -18,7 +18,7 @@
   <!-- Automatic Normal Browser Tab Disk Cache Purge & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_08_09_local_hosted_bamboo_flute_v41";
+      var MOBILE_VER = "mindease_v2026_08_09_relaxing_jazz_band_v42";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -490,8 +490,8 @@
 <body>
   <div id="root"></div>
 
-  <!-- Calming Peaceful Bamboo Flute & Meditation Background Audio -->
-  <audio id="bg-calm-audio" loop preload="auto" playsinline controlsList="nodownload" src="bamboo-flute.mp3?v=20260809">
+  <!-- Soulful Relaxing Jazz Band Background Audio (SOULFULJAMTRACKS) -->
+  <audio id="bg-calm-audio" loop preload="auto" playsinline controlsList="nodownload" src="relaxing-jazz.mp3?v=20260809">
   </audio>
 
   <script type="text/babel">
@@ -988,7 +988,7 @@
                 onClick={onToggleMusic}
                 onTouchEnd={(e) => { e.preventDefault(); onToggleMusic(e); }}
                 className={`music-toggle-btn ${isMusicPlaying ? 'playing' : ''}`}
-                title={isMusicPlaying ? "Pause Bamboo Flute Music" : "Play Calm Bamboo Flute Music"}
+                title={isMusicPlaying ? "Pause Relaxing Jazz Music" : "Play Relaxing Jazz Band Music"}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -1006,8 +1006,8 @@
                   touchAction: 'manipulation'
                 }}
               >
-                <span>{isMusicPlaying ? "🪈" : "⏸️"}</span>
-                <span className="desktop-nav">{isMusicPlaying ? "Bamboo Flute" : "Play Flute"}</span>
+                <span>{isMusicPlaying ? "🎷" : "⏸️"}</span>
+                <span className="desktop-nav">{isMusicPlaying ? "Relaxing Jazz" : "Play Jazz"}</span>
               </button>
 
               <MagneticButton
