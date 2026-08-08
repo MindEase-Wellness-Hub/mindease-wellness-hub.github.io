@@ -18,7 +18,7 @@
   <!-- Automatic Normal Browser Tab Disk Cache Purge & Force Reload -->
   <script>
     (function() {
-      var MOBILE_VER = "mindease_v2026_08_09_calm_bamboo_flute_v40";
+      var MOBILE_VER = "mindease_v2026_08_09_local_hosted_bamboo_flute_v41";
       if (localStorage.getItem("mindease_ver_key") !== MOBILE_VER) {
         localStorage.setItem("mindease_ver_key", MOBILE_VER);
         if ('serviceWorker' in navigator) {
@@ -491,10 +491,7 @@
   <div id="root"></div>
 
   <!-- Calming Peaceful Bamboo Flute & Meditation Background Audio -->
-  <audio id="bg-calm-audio" loop preload="auto" playsinline controlsList="nodownload">
-    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a7321c.mp3?filename=bamboo-flute-meditation-14631.mp3" type="audio/mpeg" />
-    <source src="https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=calm-meditation-bamboo-flute-9892.mp3" type="audio/mpeg" />
-    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=meditation-peaceful-piano-112269.mp3" type="audio/mpeg" />
+  <audio id="bg-calm-audio" loop preload="auto" playsinline controlsList="nodownload" src="bamboo-flute.mp3?v=20260809">
   </audio>
 
   <script type="text/babel">
